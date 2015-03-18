@@ -94,19 +94,6 @@
 	bottom: 10
 }
 
-".listView": {
-	separatorColor: '#000',
-	separatorInsets: {
-		left: 10,
-		right: 10
-	},
-	top: 10,
-	height: Titanium.UI.SIZE,
-	touchEnabled: false
-}
-"TableView":{
-	height: Titanium.UI.SIZE
-}
 ".tableView":{
 	height: Titanium.UI.SIZE
 }
@@ -125,19 +112,10 @@
 	font: {
 		fontSize: 14
 	},
-	color: '#000',
+	color: 'green',
 	left: 5,
 	right: 5,
 	top: 10,
-	height: 20,
+	height: Ti.UI.SIZE,
 	touchEnabled: false
-}
-"ItemTemplate":{
-	font: {
-		fontSize: 14
-	},
-	color: '#000',
-	left: 10,
-	right: 10,
-	top: 10
 }

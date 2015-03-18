@@ -39,22 +39,6 @@ exports.filter = function(html, whitelist, callback) {
             template;
         //a listView template
 
-        template = {
-            childTemplates : [{
-                "type" : 'Ti.UI.Label',
-                "bindId" : 'rowtitle',
-                "properties" : {
-                    "class" : 'label',
-                    "font" : {
-                        "fontSize" : 14
-                    },
-                    "color" : '#000',
-                    "left" : 15,
-                    "right" : 15,
-                    "top" : 10
-                }
-            }]
-        };
         getListViewItems = function(data) {
             var kids = [];
             try {
@@ -196,35 +180,7 @@ exports.filter = function(html, whitelist, callback) {
                     lbl.applyProperties(style);
                     tiObjects.push(lbl);
                 }
-                if (obj.type === "listView") {
-                    lv = Ti.UI.createListView({
-                        templates : {
-                            'plain' : template
-                        },
-                        defaultItemTemplate : 'plain'
-                    });
-                    //need to do this to style the listView from .tss
-                    style = $.createStyle({
-                        classes : "listView",
-                        apiName : 'ListView'
-                    });
-                    lv.applyProperties(style);
-                    obj.children.forEach(function(child) {
-                        if (child.type === "listViewItem" && child.text) {
-                            data.push({
-                                "rowtitle" : {
-                                    "text" : child.text
-                                }
-                            });
-                        }
-                    });
-                    lvs = Ti.UI.createListSection({
-                        "items" : data
-                    });
-                    lv.sections = [lvs];
-                    tiObjects.push(lv);
-                }
-                if (obj.type === "tableView") {
+                if ((obj.type === "tableView") || (obj.type === "listView")) {
                     tv = Ti.UI.createTableView();
                     style = $.createStyle({
                         classes : "tableView",
@@ -242,15 +198,22 @@ exports.filter = function(html, whitelist, callback) {
                             });
                             tvs.applyProperties(style);
                         }
-                        if (child.type === "tableViewRow" && child.text) {
-                            tvr = Ti.UI.createTableViewRow({
-                                "title" : child.text
+                        if ((child.type === "tableViewRow") || (child.type === "listViewItem") && child.text) {
+                            tvr = Ti.UI.createTableViewRow();
+                            lbl = Ti.UI.createLabel({
+                                text : child.text
                             });
                             style = $.createStyle({
-                                classes : "tableViewRow",
+                                classes : 'label',
+                                apiName : 'Label'
+                            });
+                            lbl.applyProperties(style);
+                            style = $.createStyle({
+                                classes : 'tableViewRow',
                                 apiName : 'TableViewRow'
                             });
                             tvr.applyProperties(style);
+                            tvr.add(lbl);
                             if (tvs) {
                                 tvs.add(tvr);
                             } else {
