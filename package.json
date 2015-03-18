@@ -1,0 +1,43 @@
+{
+  "name": "ti-html2Label",
+  "version": "0.0.1",
+  "description": "Convert HTML to Titanium Label",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm test"
+  },
+  "titaniumManifest": {
+    "guid": "1d0ddc91-0034-1c99-68ba-5a041ae42c44",
+    "moduleid": "com.stepupapps.html2label"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:sharpred/ti-html2Label.git"
+  },
+  "keywords": [
+    "titanium",
+    "label",
+    "html2parser",
+    "tagsoup"
+  ],
+  "dependencies": {
+    "htmlparser2": "^3.8.0",
+    "entities": "^1.1.1"
+  },
+  "devDependencies": {
+    "css": "^2.2.0",
+    "filterhtml": "^0.3.5",
+    "grunt": "^0.4.2",
+    "grunt-contrib-clean": "^0.6.0",
+    "grunt-titanium": "^0.3.1",
+    "grunt-titaniumifier": "^1.0.0-beta",
+    "grunt-zip": "^0.16.0",
+    "ti-console": "^0.1.4"
+  },
+  "author": "Paul Ryan",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/sharpred/ti-html2Label/issues"
+  },
+  "homepage": "https://github.com/sharpred/ti-html2Label"
+}

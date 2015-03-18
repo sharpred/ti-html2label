@@ -1,0 +1,10 @@
+version: 0.0.1
+description: Convert HTML to Titanium Label
+author: Paul Ryan
+license: MIT
+copyright: Copyright © 2015 Paul Ryan
+name: ti-html2Label
+moduleid: com.stepupapps.html2label
+guid: 1d0ddc91-0034-1c99-68ba-5a041ae42c44
+platform: commonjs
+minsdk: 3.2.0.GA

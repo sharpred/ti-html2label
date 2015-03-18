@@ -1,0 +1,51 @@
+{
+    "a": {
+        "href": "url",
+        "target": ["_blank", "_self"]
+    },
+    "h1": {},
+    "h2": {},
+    "h3": {},
+    "h4": {},
+    "h5": {},
+    "img": {
+        "src": "url",
+        "alt": "alphanumeric",
+        "height": "measurement",
+        "width": "measurement"
+    },
+    "strong": {},
+    "em": {},
+    "u": {},
+    "ul": {},
+    "ol": {},
+    "li": {},
+    "p": {},
+    "title": {},
+    "table": {},
+    "th": {},
+    "tr": {},
+    "td": {},
+    "style": {},
+    "i": {},
+    "b": {},
+    "title": "p class=\"title\"",
+    "h1": "p class=\"h1\"",
+    "h2": "p class=\"h2\"",
+    "h3": "p class=\"h3\"",
+    "h4": "p class=\"h4\"",
+    "h5": "p class=\"h5\"",
+    "i": "p class=\"em\"",
+    "b": "p class=\"strong\"",
+    "em": "p class=\"em\"",
+    "strong": "p class=\"strong\"",
+    "u": "p class=\"u\"",
+    "*": {
+        "style": {
+            "color": "color",
+            "background-color": "color",
+            "font-size": "measurement",
+            "font-family": "alphanumeric"
+        }
+    }
+}

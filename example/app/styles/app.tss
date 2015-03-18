@@ -1,0 +1,143 @@
+".label": {
+	font: {
+		fontSize: 14
+	},
+	color: '#000',
+	left: 10,
+	right: 10,
+	top: 10
+}
+
+"#label": {
+	font: {
+		fontSize: 14
+	},
+	color: '#000',
+	left: 10,
+	right: 10,
+	top: 10
+}
+
+".u": {
+	font: {
+		fontSize: 12
+	},
+	color: 'green'
+}
+
+".strong": {
+	font: {
+		fontSize: 12
+	},
+	color: 'green'
+}
+
+".em": {
+	font: {
+		fontSize: 12
+	},
+	color: 'green'
+}
+
+
+".h1": {
+	font: {
+		fontSize: 20
+	},
+	color: 'red',
+	left: 10,
+	bottom: 10
+}
+
+".h2": {
+	font: {
+		fontSize: 16
+	},
+	color: 'yellow',
+	left: 10,
+	bottom: 10
+}
+
+".a": {
+	font: {
+		fontSize: 16
+	},
+	color: 'green',
+	left: 10,
+	bottom: 10
+}
+
+".h3": {
+	font: {
+		fontSize: 14
+	},
+	color: 'blue',
+	left: 10,
+	bottom: 10
+}
+
+".h4": {
+	font: {
+		fontSize: 12
+	},
+	color: 'orange',
+	left: 10,
+	bottom: 10
+}
+
+".h5": {
+	font: {
+		fontSize: 10
+	},
+	color: 'violet',
+	left: 10,
+	bottom: 10
+}
+
+".listView": {
+	separatorColor: '#000',
+	separatorInsets: {
+		left: 10,
+		right: 10
+	},
+	top: 10,
+	height: Titanium.UI.SIZE,
+	touchEnabled: false
+}
+"TableView":{
+	height: Titanium.UI.SIZE
+}
+".tableView":{
+	height: Titanium.UI.SIZE
+}
+
+".tableViewSection":{
+	font: {
+		fontSize: 18
+	},
+	left: 10,
+	right: 10,
+	top: 20,
+	height: 25
+}
+
+".tableViewRow":{
+	font: {
+		fontSize: 14
+	},
+	color: '#000',
+	left: 5,
+	right: 5,
+	top: 10,
+	height: 20,
+	touchEnabled: false
+}
+"ItemTemplate":{
+	font: {
+		fontSize: 14
+	},
+	color: '#000',
+	left: 10,
+	right: 10,
+	top: 10
+}
