@@ -34,11 +34,36 @@ exports.filter = function(html, whitelist, callback) {
             tree = [],
             objects = [],
             tiObjects = [],
+            getLabels,
             getListViewItems,
             getTableRowItems,
-            template;
+            getLabels,
+            template,
+            labels = [];
         //a listView template
 
+        getLabels = function(item) {
+            var obj = {};
+            try {
+                obj.type = "label";
+                obj.attribs = item.attribs;
+                if (item.name === 'a') {
+                    item.attribs.class = "a";
+                }
+                if (item.children && item.children.length > 0) {
+                    item.children.forEach(function(child) {
+                        if (child.type === "text" && child.data) {
+                            obj.text = child.data;
+                        } else if (child.type === "tag") {
+                            getLabels(child);
+                        }
+                    });
+                }
+                labels.push(obj);
+            } catch(ex) {
+                console.error(ex);
+            }
+        };
         getListViewItems = function(data) {
             var kids = [];
             try {
@@ -111,25 +136,18 @@ exports.filter = function(html, whitelist, callback) {
                         walker(item.children);
                     }
                     if (item.type === "tag") {
-                        //non specials will be converted to simple labels
-                        obj.type = item.name;
-                        obj.attribs = item.attribs;
                         if (item.name === 'p' || item.name === 'a') {
-                            obj.type = "label";
-                            if (item.name === 'a') {
-                                item.attribs.class = "a";
-                            }
-                            if (item.children && item.children.length > 0) {
-                                item.children.forEach(function(child) {
-                                    if (child.type === "text" && child.data) {
-                                        obj.text = child.data;
-                                    } else if (child.type === "tag") {
-                                        console.error("***** will be missed");
-                                        console.error(child.data);
-                                    }
-                                });
-                            }
+                            //reinitialise labels array as getLabels is recursive
+                            labels = [];
+                            getLabels(item);
+                            labels.forEach(function(label) {
+                                objects.push(label);
+                            });
                         } else {
+                            //non specials will be converted to simple labels
+                            obj.type = item.name;
+                            obj.attribs = item.attribs;
+
                             if (item.children && item.children.length > 0) {
                                 if (item.name === 'ol' || item.name === 'ul') {
                                     obj.type = "listView";
@@ -140,8 +158,8 @@ exports.filter = function(html, whitelist, callback) {
                                     obj.children = getTableRowItems(item.children);
                                 }
                             }
+                            objects.push(obj);
                         }
-                        objects.push(obj);
                     }
                 });
             }
@@ -177,14 +195,19 @@ exports.filter = function(html, whitelist, callback) {
 
                     lbl.applyProperties(style);
                     tiObjects.push(lbl);
+
                 }
                 if ((obj.type === "tableView") || (obj.type === "listView")) {
+
                     tv = Ti.UI.createTableView();
+
                     style = $.createStyle({
                         classes : "tableView",
                         apiName : 'TableView'
                     });
+
                     tv.applyProperties(style);
+
                     obj.children.forEach(function(child) {
                         if (child.type === "tableViewSection" && child.text) {
                             tvs = Ti.UI.createTableViewSection({
@@ -219,10 +242,13 @@ exports.filter = function(html, whitelist, callback) {
                             }
                         }
                     });
+
                     if (tvs) {
                         tv.appendSection(tvs);
                     }
+
                     tiObjects.push(tv);
+
                 }
             });
         } catch(ex) {
@@ -244,13 +270,14 @@ exports.filter = function(html, whitelist, callback) {
         }
     });
     parser = new htmlparser.Parser(handler);
-    //replace any break tags with new lines
-    html = html.replace(/\<br\>|\<br \/\>|\<hr\>|\<hr \/\>/g, "\n");
+    //remove any break tags
+    html = html.replace(/\<br\>|\<br \/\>|\<hr\>|\<hr \/\>/g, "");
     //filter the supplied HTML and fire the callback
     filter(html, whitelist, function(error, data) {
         if (error) {
             callback(error);
         } else {
+            console.log(data);
             parser.parseComplete(data);
         }
     });
