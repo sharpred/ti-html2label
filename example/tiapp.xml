@@ -48,7 +48,7 @@
         <theme>default</theme>
     </mobileweb>
     <modules>
-        <module>com.stepupapps.html2label</module>
+        <module>com.stepupapps.html2native</module>
     </modules>
     <deployment-targets>
         <target device="android">true</target>

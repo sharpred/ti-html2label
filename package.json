@@ -1,18 +1,18 @@
 {
-  "name": "ti-html2Label",
+  "name": "ti-html2native",
   "version": "0.0.1",
-  "description": "Convert HTML to Titanium Label",
+  "description": "Convert HTML to Titanium objects",
   "main": "index.js",
   "scripts": {
     "test": "npm test"
   },
   "titaniumManifest": {
     "guid": "1d0ddc91-0034-1c99-68ba-5a041ae42c44",
-    "moduleid": "com.stepupapps.html2label"
+    "moduleid": "com.stepupapps.html2native"
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:sharpred/ti-html2Label.git"
+    "url": "git@github.com:sharpred/ti-html2native.git"
   },
   "keywords": [
     "titanium",
@@ -37,7 +37,7 @@
   "author": "Paul Ryan",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/sharpred/ti-html2Label/issues"
+    "url": "https://github.com/sharpred/ti-html2native/issues"
   },
-  "homepage": "https://github.com/sharpred/ti-html2Label"
+  "homepage": "https://github.com/sharpred/ti-html2native"
 }

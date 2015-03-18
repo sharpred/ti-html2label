@@ -11,7 +11,7 @@ var view = Ti.UI.createScrollView({
 });
 
 //note the use of .call($) to allow the use of $.createStyle
-require("com.stepupapps.html2label").filter.call($, html, whitelist, function(err, elements) {
+require("com.stepupapps.html2native").filter.call($, html, whitelist, function(err, elements) {
     if (err) {
         console.error(err);
     } else {

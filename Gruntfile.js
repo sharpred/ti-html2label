@@ -32,7 +32,7 @@ module.exports = function(grunt) {
 
     unzip: {
       module: {
-        src: 'com.stepupapps.html2label-commonjs-<%= pkg.version %>.zip',
+        src: '<%= pkg.titaniumManifest.moduleid %>-commonjs-<%= pkg.version %>.zip',
         dest: 'example'
       }
     }
