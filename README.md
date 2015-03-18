@@ -1,2 +1,2 @@
-# ti-html2Label
-convert html to titanium label
+# ti-html2native
+convert html to titanium object
