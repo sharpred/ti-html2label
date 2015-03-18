@@ -10,6 +10,6 @@ This will build the module and run the example project
 ##How it works
 ###Components
 The module is built using titaniumifier and uses the following npm components;
-1. [filterhtml](https://www.npmjs.com/package/filterhtml)
-2. [html2parser](https://www.npmjs.com/package/htmlparser2)
-3. [htmlclean](https://www.npmjs.com/package/htmlclean)
+..1. [filterhtml](https://www.npmjs.com/package/filterhtml)
+..2. [html2parser](https://www.npmjs.com/package/htmlparser2)
+..3. [htmlclean](https://www.npmjs.com/package/htmlclean)
