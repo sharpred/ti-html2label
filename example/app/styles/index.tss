@@ -1,3 +1,135 @@
 ".container": {
-	backgroundColor:"white"
+	backgroundColor: "white"
+}
+".label": {
+	font: {
+		fontSize: 14
+	},
+	color: '#000',
+	left: 10,
+	right: 10,
+	top: 10
+}
+
+".a": {
+	font: {
+		fontSize: 16
+	},
+	color: 'blue',
+	left: 10,
+	bottom: 10
+}
+
+".u": {
+	font: {
+		fontSize: 12
+	},
+	color: '#000',
+	left: 10,
+	right: 10,
+	top: 10
+}
+
+".strong": {
+	font: {
+		fontSize: 12
+	},
+	color: '#000',
+	left: 10,
+	right: 10,
+	top: 10
+}
+
+".em": {
+	font: {
+		fontSize: 12
+	},
+	color: '#000',
+	left: 10,
+	right: 10,
+	top: 10
+}
+
+
+".h1": {
+	font: {
+		fontSize: 20
+	},
+	color: 'black',
+	left: 10,
+	bottom: 10
+}
+
+".h2": {
+	font: {
+		fontSize: 16
+	},
+	color: 'black',
+	left: 10,
+	bottom: 10
+}
+
+".h3": {
+	font: {
+		fontSize: 14
+	},
+	color: 'black',
+	left: 10,
+	bottom: 10
+}
+
+".h4": {
+	font: {
+		fontSize: 12
+	},
+	color: 'black',
+	left: 10,
+	bottom: 10
+}
+
+".h5": {
+	font: {
+		fontSize: 10
+	},
+	color: 'black',
+	left: 10,
+	bottom: 10
+}
+
+".tableView":{
+	height: Titanium.UI.SIZE
+}
+
+".tableViewSection":{
+	font: {
+		fontSize: 18
+	},
+	left: 10,
+	right: 10,
+	top: 20,
+	height: 25
+}
+
+".tableViewRow":{
+	font: {
+		fontSize: 14
+	},
+	color: 'green',
+	left: 5,
+	right: 5,
+	top: 10,
+	height: Ti.UI.SIZE,
+	touchEnabled: false,
+	selectedBackgroundColor: 'white'
+}
+
+".imageViewRow":{
+	top: 20,
+	touchEnabled: false
+}
+
+".scrollView": {
+	top: 20,
+	bottom: 20,
+	layout: "vertical"
 }

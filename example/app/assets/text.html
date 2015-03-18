@@ -1,33 +1,102 @@
-<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ultrices lacus bibendum mi tempus, a ornare quam posuere. Etiam iaculis ut est aliquet pulvinar. Nulla nec magna rutrum sapien aliquet varius non accumsan orci. Nam bibendum neque nec ante finibus, id convallis arcu egestas. Suspendisse potenti.
-<br />Vestibulum mauris tellus, semper nec turpis ac, pharetra sollicitudin erat. Curabitur fringilla nisi vel tortor dictum dignissim.</p>
-<p><a href="http://slashdot.org/" target="_blank">Nam egestas eleifend lectus nec viverra</a>.</p>
-<p><b>Quisque</b> <i>massa</i> <u>purus</u>, condimentum ut ipsum ut, fermentum aliquam purus.</p>
+<h1>Example Page Converted to Titanium Objects</h1>
+<p>All elements in this page are styled using .tss</p>
+<p>Todo: allow inline styling</p>
+<p>Todo: clear up duff tags (empty strings, strings with just special chars in them)</p>
+<p>Todo: fix orphaned paragraph testing caused by nesting</p>
+<h2>Paragraph tags converted to Labels</h2>
+<p>
+    This data
+<p>
+    has a nested tag in it
+<p>
+    and another one
+</p></p>
+is rubbish</p>
+<h2>Image tags with added Kittens</h2>
+<img src="https://placekitten.com/g/200/300" alt="Smiley face" height="300" width="200">
+<img src="https://placekitten.com/g/300/200" alt="Smiley face" height="200" width="300">
+<h2>More longer paragraphs</h2>
+<p>
+    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ultrices lacus bibendum mi tempus, a ornare quam posuere. Etiam iaculis ut est aliquet pulvinar. Nulla nec magna rutrum sapien aliquet varius non accumsan orci. Nam bibendum neque nec ante finibus, id convallis arcu egestas. Suspendisse potenti.
+    <br />
+    Vestibulum mauris tellus, semper nec turpis ac, pharetra sollicitudin erat. Curabitur fringilla nisi vel tortor dictum dignissim.
+</p>
+<p><a href="http://slashdot.org/" target="_blank">Nam egestas eleifend lectus nec viverra</a></p>
+<h2>Bold, Italic and underline tags just transformed to p using whitelist settings</h2>
+<p>
+    <b>Quisque</b><i>massa</i><u>purus</u>, condimentum ut ipsum ut, fermentum aliquam purus.
+</p>
 <hr />
-<p> </p>
-<p>Vestibulum ut aliquet <sub>lorem</sub>.</p>
-<p>Pellentesque iaculis porta orci vitae <sup>ornare</sup>.</p>
-<p style="color:red;">Pellentesque iaculis porta orci vitae.</p>
-<p align="center">Sed eu elit pretium, efficitur tortor ornare, hendrerit massa.</p>
-<p align="right">Duis tempor elit eget justo laoreet ullamcorper.</p>
-<p>Ut a mi libero. Nam ultrices nisl a diam aliquet, non lacinia mi vestibulum. Donec hendrerit, diam placerat facilisis elementum, velit nulla commodo leo, eget ullamcorper neque purus non ipsum. Pellentesque pretium pellentesque sollicitudin. Cras euismod nulla ut mauris fermentum, vel venenatis magna malesuada. Nulla facilisis ac leo sed posuere. Aliquam vitae vestibulum dui. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam libero leo, molestie vel facilisis luctus, iaculis sit amet dolor.</p>
+<p></p>
+<p>
+    Vestibulum ut aliquet <sub>lorem</sub>.
+</p>
+<p>
+    Pellentesque iaculis porta orci vitae <sup>ornare</sup>.
+</p>
+<p style="color:red;">
+    Pellentesque iaculis porta orci vitae.
+</p>
+<p align="center">
+    Sed eu elit pretium, efficitur tortor ornare, hendrerit massa.
+</p>
+<p align="right">
+    Duis tempor elit eget justo laoreet ullamcorper.
+</p>
+<p>
+    Ut a mi libero. Nam ultrices nisl a diam aliquet, non lacinia mi vestibulum. Donec hendrerit, diam placerat facilisis elementum, velit nulla commodo leo, eget ullamcorper neque purus non ipsum. Pellentesque pretium pellentesque sollicitudin. Cras euismod nulla ut mauris fermentum, vel venenatis magna malesuada. Nulla facilisis ac leo sed posuere. Aliquam vitae vestibulum dui. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam libero leo, molestie vel facilisis luctus, iaculis sit amet dolor.
+</p>
+<h2>ul tag converted to tableView</h2>
 <ul>
-<li>Aliquam rutrum fermentum lacus id fringilla.</li>
-<li>Etiam molestie.</li>
-<li>Libero non rhoncus venenatis.</li>
-<li>Nibh urna suscipit nisl.</li>
-<li>Et blandit sem tortor quis neque.</li>
+    <li>
+        Aliquam rutrum fermentum lacus id fringilla.
+    </li>
+    <li>
+        Etiam molestie.
+    </li>
+    <li>
+        Libero non rhoncus venenatis.
+    </li>
+    <li>
+        Nibh urna suscipit nisl.
+    </li>
+    <li>
+        Et blandit sem tortor quis neque.
+    </li>
 </ul>
-<p>Nam in orci porttitor, blandit tortor id, rutrum eros. Donec faucibus gravida nisl, vitae placerat metus volutpat sed. Pellentesque sit amet metus quis sapien fermentum blandit. Nunc ipsum lectus, pretium in nunc eget, ultricies vestibulum elit. Proin varius diam at risus eleifend elementum. Suspendisse lobortis, eros et sagittis pulvinar, velit tortor efficitur nisl, at sagittis ante ante sit amet nunc. Mauris vitae fringilla magna. Pellentesque vitae velit eleifend, porta purus quis, tempor odio. Nulla sed elit convallis mauris venenatis vulputate. Nulla ut condimentum tortor, a vestibulum enim. Phasellus lobortis lorem in lorem tristique cursus nec non libero. Suspendisse ut tristique ante, eget posuere nisi.</p>
+<p>
+    Nam in orci porttitor, blandit tortor id, rutrum eros. Donec faucibus gravida nisl, vitae placerat metus volutpat sed. Pellentesque sit amet metus quis sapien fermentum blandit. Nunc ipsum lectus, pretium in nunc eget, ultricies vestibulum elit. Proin varius diam at risus eleifend elementum. Suspendisse lobortis, eros et sagittis pulvinar, velit tortor efficitur nisl, at sagittis ante ante sit amet nunc. Mauris vitae fringilla magna. Pellentesque vitae velit eleifend, porta purus quis, tempor odio. Nulla sed elit convallis mauris venenatis vulputate. Nulla ut condimentum tortor, a vestibulum enim. Phasellus lobortis lorem in lorem tristique cursus nec non libero. Suspendisse ut tristique ante, eget posuere nisi.
+</p>
+<h2>ol tag converted to tableView</h2>
 <ol>
-<li>Donec nibh mi, imperdiet elementum mollis sed, ultrices at ex.</li>
-<li>Donec sit amet nunc dignissim, imperdiet dolor sed, varius elit.</li>
-<li>Mauris eu neque egestas, vestibulum mi id, lobortis eros.</li>
+    <li>
+        Donec nibh mi, imperdiet elementum mollis sed, ultrices at ex.
+    </li>
+    <li>
+        Donec sit amet nunc dignissim, imperdiet dolor sed, varius elit.
+    </li>
+    <li>
+        Mauris eu neque egestas, vestibulum mi id, lobortis eros.
+    </li>
 </ol>
-<p> Maecenas fringilla ultrices sem, nec viverra nunc volutpat vel. Vestibulum ac tristique nibh. Duis in suscipit odio, a viverra ante. Proin quis ante id erat efficitur eleifend et sed dolor. Vivamus ultricies felis rutrum massa maximus, quis congue libero faucibus. Aliquam faucibus tellus ut pellentesque sollicitudin. Curabitur lectus metus, aliquet mattis mi at, maximus tincidunt elit. Cras vitae ipsum sed orci feugiat feugiat. Phasellus ante dui, fringilla ac tempor mollis, tempus ac lorem. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Ut at erat odio. Nullam nisi mi, dignissim a leo in, faucibus lacinia felis. Etiam faucibus dapibus libero id fringilla.</p>
-<p>Fusce augue velit, semper ac elit vitae, condimentum sollicitudin ligula. Fusce mollis euismod varius. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer id eros lectus. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Vestibulum ac vulputate massa. Fusce placerat, mi sed cursus imperdiet, felis metus malesuada nulla, at fringilla tellus augue sit amet lorem. Duis arcu neque, luctus at tortor et, maximus mattis orci. Nunc porttitor neque ac ornare tincidunt. Nulla porttitor laoreet faucibus. Sed ornare lacus vitae finibus placerat. Maecenas tincidunt enim vel ante imperdiet tempus.</p>
-<table><tr><th>This is a</th><th>header</th></tr><tr><td>Some</td><td>Data</td></tr><tr><td>Some</td><td>More</td><td>Data</td></tr></table>
-<h1>Header 1</h1>
-<h2>Header 2</h2>
-<h3>Header 3</h3>
-<h4>Header 4</h4>
-<h5>Header 5</h5>
+<p>
+    Maecenas fringilla ultrices sem, nec viverra nunc volutpat vel. Vestibulum ac tristique nibh. Duis in suscipit odio, a viverra ante. Proin quis ante id erat efficitur eleifend et sed dolor. Vivamus ultricies felis rutrum massa maximus, quis congue libero faucibus. Aliquam faucibus tellus ut pellentesque sollicitudin. Curabitur lectus metus, aliquet mattis mi at, maximus tincidunt elit. Cras vitae ipsum sed orci feugiat feugiat. Phasellus ante dui, fringilla ac tempor mollis, tempus ac lorem. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Ut at erat odio. Nullam nisi mi, dignissim a leo in, faucibus lacinia felis. Etiam faucibus dapibus libero id fringilla.
+</p>
+<p>
+    Fusce augue velit, semper ac elit vitae, condimentum sollicitudin ligula. Fusce mollis euismod varius. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer id eros lectus. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Vestibulum ac vulputate massa. Fusce placerat, mi sed cursus imperdiet, felis metus malesuada nulla, at fringilla tellus augue sit amet lorem. Duis arcu neque, luctus at tortor et, maximus mattis orci. Nunc porttitor neque ac ornare tincidunt. Nulla porttitor laoreet faucibus. Sed ornare lacus vitae finibus placerat. Maecenas tincidunt enim vel ante imperdiet tempus.
+</p>
+<h2>table tag converted to tableView</h2>
+<table>
+    <tr>
+        <th>This is a</th>
+        <th>table</th>
+        <th>header</th>
+    </tr>
+    <tr>
+        <td>Some</td><td>Data</td>
+    </tr>
+    <tr>
+        <td>Some</td><td>More</td><td>Data</td>
+    </tr>
+</table>
+<h1>Headers</h1><h2>Header 2</h2><h3>Header 3</h3><h4>Header 4</h4><h5>Header 5</h5>

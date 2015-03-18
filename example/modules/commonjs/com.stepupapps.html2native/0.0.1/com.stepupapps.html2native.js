@@ -36,11 +36,51 @@ exports.filter = function(html, whitelist, callback) {
             tree = [],
             objects = [],
             tiObjects = [],
+            getLabels,
             getListViewItems,
             getTableRowItems,
-            template;
-        //a listView template
+            getLabels,
+            getImages,
+            template,
+            labels = [];
 
+        getImages = function(item) {
+            var images = [],
+                obj = {};
+            try {
+                obj.src = item.attribs.src;
+                obj.height = item.attribs.height;
+                obj.width = item.attribs.width;
+                obj.type = "imageView";
+                images.push(obj);
+            } catch(ex) {
+                console.error(ex);
+            } finally {
+                return images;
+            }
+        };
+        getLabels = function(item) {
+            var obj = {};
+            try {
+                obj.type = "label";
+                obj.attribs = item.attribs;
+                if (item.name === 'a') {
+                    item.attribs.class = "a";
+                }
+                if (item.children && item.children.length > 0) {
+                    item.children.forEach(function(child) {
+                        if (child.type === "text" && child.data) {
+                            obj.text = child.data;
+                        } else if (child.type === "tag") {
+                            getLabels(child);
+                        }
+                    });
+                }
+                labels.push(obj);
+            } catch(ex) {
+                console.error(ex);
+            }
+        };
         getListViewItems = function(data) {
             var kids = [];
             try {
@@ -108,30 +148,29 @@ exports.filter = function(html, whitelist, callback) {
                     tree = dom.slice();
                 }
                 tree.forEach(function(item) {
-                    var obj = {};
+                    var obj = {},
+                        images = [];
                     if (item.children) {
                         walker(item.children);
                     }
                     if (item.type === "tag") {
-                        //non specials will be converted to simple labels
-                        obj.type = item.name;
-                        obj.attribs = item.attribs;
                         if (item.name === 'p' || item.name === 'a') {
-                            obj.type = "label";
-                            if (item.name === 'a') {
-                                item.attribs.class = "a";
-                            }
-                            if (item.children && item.children.length > 0) {
-                                item.children.forEach(function(child) {
-                                    if (child.type === "text" && child.data) {
-                                        obj.text = child.data;
-                                    } else if (child.type === "tag") {
-                                        console.error("***** will be missed");
-                                        console.error(child.data);
-                                    }
-                                });
-                            }
+                            //reinitialise labels array as getLabels is recursive
+                            labels = [];
+                            getLabels(item);
+                            labels.forEach(function(label) {
+                                objects.push(label);
+                            });
+                        } else if (item.name === "img") {
+                            images = getImages(item);
+                            images.forEach(function(image) {
+                                objects.push(image);
+                            });
                         } else {
+                            //non specials will be converted to simple labels
+                            obj.type = item.name;
+                            obj.attribs = item.attribs;
+
                             if (item.children && item.children.length > 0) {
                                 if (item.name === 'ol' || item.name === 'ul') {
                                     obj.type = "listView";
@@ -142,26 +181,23 @@ exports.filter = function(html, whitelist, callback) {
                                     obj.children = getTableRowItems(item.children);
                                 }
                             }
+                            objects.push(obj);
                         }
-                        objects.push(obj);
                     }
                 });
             }
-        } catch(ex) {
-            console.error(ex);
-        } finally {
+            //create the titanium objects
             objects.forEach(function(obj) {
                 var lbl,
                     klass,
                     style,
-                    lv,
-                    lvs,
+                    iv,
                     data = [],
                     tv,
                     tvs,
                     tvr;
                 obj || ( obj = {});
-                if (obj.type === "label") {
+                if (obj.type === "label" && obj.text) {
 
                     lbl = Ti.UI.createLabel({
                         text : obj.text
@@ -181,14 +217,19 @@ exports.filter = function(html, whitelist, callback) {
 
                     lbl.applyProperties(style);
                     tiObjects.push(lbl);
+
                 }
                 if ((obj.type === "tableView") || (obj.type === "listView")) {
+
                     tv = Ti.UI.createTableView();
+
                     style = $.createStyle({
                         classes : "tableView",
                         apiName : 'TableView'
                     });
+
                     tv.applyProperties(style);
+
                     obj.children.forEach(function(child) {
                         if (child.type === "tableViewSection" && child.text) {
                             tvs = Ti.UI.createTableViewSection({
@@ -223,12 +264,31 @@ exports.filter = function(html, whitelist, callback) {
                             }
                         }
                     });
+
                     if (tvs) {
                         tv.appendSection(tvs);
                     }
+
                     tiObjects.push(tv);
                 }
+
+                if (obj.type === "imageView" && obj.src && obj.height && obj.width) {
+                    iv = Ti.UI.createImageView({
+                        "image" : obj.src,
+                        "height" : obj.height,
+                        "width" : obj.width
+                    });
+                    style = $.createStyle({
+                        classes : 'imageViewRow',
+                        apiName : 'ImageViewRow'
+                    });
+                    iv.applyProperties(style);
+                    tiObjects.push(iv);
+                }
             });
+        } catch(ex) {
+            console.error(ex);
+        } finally {
             objects = null;
             return tiObjects;
         }
@@ -245,8 +305,10 @@ exports.filter = function(html, whitelist, callback) {
         }
     });
     parser = new htmlparser.Parser(handler);
-    //replace any break tags with new lines
-    html = html.replace(/\<br\>|\<br \/\>|\<hr\>|\<hr \/\>/g, "\n");
+    //remove any break tags
+    html = html.replace(/\<br\>|\<br \/\>|\<hr\>|\<hr \/\>/g, "");
+    //remove whitespace and line breaks from markup
+    html = require('htmlclean')(html);
     //filter the supplied HTML and fire the callback
     filter(html, whitelist, function(error, data) {
         if (error) {
@@ -258,7 +320,7 @@ exports.filter = function(html, whitelist, callback) {
 };
 
 }).call(this,require("--console--"))
-},{"--console--":62,"css":2,"entities":25,"filterhtml":33,"htmlparser2":72}],2:[function(require,module,exports){
+},{"--console--":62,"css":2,"entities":25,"filterhtml":33,"htmlclean":65,"htmlparser2":73}],2:[function(require,module,exports){
 exports.parse = require('./lib/parse');
 exports.stringify = require('./lib/stringify');
 
@@ -11814,6 +11876,333 @@ function convertBuffer(buffer, encoding) {
 },{"--timers--":36,"util":60}],64:[function(require,module,exports){
 
 },{}],65:[function(require,module,exports){
+/*
+ * htmlclean
+ * https://github.com/anseki/htmlclean
+ *
+ * <!--[htmlclean-protect]-->This text is protected.<!--[/htmlclean-protect]-->
+ *
+ * Copyright (c) 2015 anseki
+ * Licensed under the MIT license.
+ */
+
+'use strict';
+
+/*
+  1. Inline elements (HTML 4, XHTML 1.0 Frameset, XHTML 1.1)
+  2. Elements in Phrasing content Category(HTML 5, HTML 5.1)
+  3. 'SVG.TextContent.class' elements (SVG 1.1 Second Edition)
+  empty:      Empty-Element
+  altBlock:   Element that keeps inner contents
+  embed:      The line-breaks will not be used for margins of this element
+*/
+var PHRASING_ELEMENTS = {a:{},abbr:{},acronym:{},applet:{altBlock:true,embed:true},b:{},bdo:{},big:{},br:{empty:true},button:{altBlock:true},cite:{},code:{},del:{},dfn:{},em:{},font:{},i:{},iframe:{altBlock:true,embed:true},img:{empty:true},input:{empty:true},ins:{},isindex:{empty:true},kbd:{},label:{},object:{altBlock:true,embed:true},q:{},s:{},samp:{},select:{altBlock:true},small:{},span:{},strike:{},strong:{},sub:{},sup:{},textarea:{},tt:{},u:{},var:{},ruby:{altBlock:true},audio:{altBlock:true,embed:true},bdi:{},canvas:{altBlock:true,embed:true},data:{},embed:{empty:true,embed:true},keygen:{empty:true,embed:true},mark:{},meter:{},output:{},progress:{},time:{},video:{altBlock:true,embed:true},wbr:{empty:true},math:{embed:true},svg:{altBlock:true,embed:true},tspan:{},tref:{},altglyph:{}};
+
+module.exports = function(html, options) {
+  var protectedText = [], unprotectedText = [], embedElms,
+    htmlWk = '', lastLeadSpace = '', lastTrailSpace = '', lastPhTags = '', lastIsEnd = true;
+
+  // USAGE: marker = [un]protectedTextAdd(text);
+  function protectedTextAdd(text) {
+    if (typeof text !== 'string' || text === '') { return ''; }
+    protectedText.push(text);
+    return '\f' + (protectedText.length - 1) + '\f';
+  }
+  function unprotectedTextAdd(text) {
+    if (typeof text !== 'string' || text === '') { return ''; }
+    unprotectedText.push(text);
+    return '\f!' + (unprotectedText.length - 1) + '\f';
+  }
+
+  // Redo String#replace until target is not found
+  function replaceComplete(text, re, fnc) {
+    var doNext = true, reg = new RegExp(re); // safe (not literal)
+    function fncWrap() {
+      doNext = true;
+      return fnc.apply(null, arguments);
+    }
+    // This is faster than using RegExp#exec() and RegExp#lastIndex,
+    // because replace() isn't called more than twice in almost all cases.
+    while (doNext) {
+      doNext = false;
+      text = text.replace(reg, fncWrap);
+    }
+    return text;
+  }
+
+  if (typeof html !== 'string') { return ''; }
+  html = html.replace(/\f/g, ' '); // \f is used as marker.
+
+  // unprotected texts
+  if (options && options.unprotect) {
+    (Array.isArray(options.unprotect) ? options.unprotect : [options.unprotect]).forEach(function(re) {
+      if (re instanceof RegExp) {
+        html = html.replace(re, function(str) { return unprotectedTextAdd(str); });
+      }
+    });
+  }
+
+  // [^\S\f] The RegExp pattern except \f from \s
+
+  // <!--[htmlclean-protect]-->
+  html = html.replace(/<[^\S\f]*\![^\S\f]*--[^\S\f]*\[[^\S\f]*htmlclean-protect[^\S\f]*\][^\S\f]*--[^\S\f]*>([\s\S]*?)<[^\S\f]*\![^\S\f]*--[^\S\f]*\[[^\S\f]*\/[^\S\f]*htmlclean-protect[^\S\f]*\][^\S\f]*--[^\S\f]*>/ig,
+    function(str, p1) { return protectedTextAdd(p1); });
+
+  /*
+    SSI tags
+      <% ... %>         PHP, JSP, ASP/ASP.NET
+      <?php ... ?>      PHP
+      <?php ...         PHP
+      <? ... ?>         PHP (confrict <?xml ... ?>)
+      <jsp: ... >       JSP
+      <asp:...>         ASP/ASP.NET (controls) ** IGNORE **
+      <!--# ... -->     Apache SSI
+  */
+  html = html
+    // <?xml ... ?> except xml tag (unprotect)
+    .replace(/(<[^\S\f]*\?[^\S\f]*xml\b[^>]*?\?[^\S\f]*>)/ig,
+      function(str, p1) { return unprotectedTextAdd(p1); })
+    // <% ... %>, <? ... ?>, <?php ... ?>
+    .replace(/(<[^\S\f]*(\%|\?)[\s\S]*?\2[^\S\f]*>)/g, // Not [^>]. '>' may be included.
+      function(str, p1) { return protectedTextAdd(p1); })
+    // <?php ...
+    .replace(/(<[^\S\f]*\?[^\S\f]*php\b[\s\S]*)/ig,
+      function(str, p1) { return protectedTextAdd(p1); })
+    // <jsp: ... >
+    .replace(/(<[^\S\f]*jsp[^\S\f]*:[^>]*?>)/ig,
+      function(str, p1) { return protectedTextAdd(p1); })
+    // <!--# ... -->
+    .replace(/(<[^\S\f]*\![^\S\f]*--[^\S\f]*\#[\s\S]*?--[^\S\f]*>)/g, // Not [^>]. '>' may be included.
+      function(str, p1) { return protectedTextAdd(p1); })
+  ;
+
+  // IE conditional comments
+  // The line-breaks will not be used for margins of these elements.
+  html = html
+    /*
+      <![if expression]>
+      <!--[if expression]>
+      <!--[if expression]>-->
+      <!--[if expression]><!-->
+    */
+    .replace(/(?:[\t ]*[\n\r][^\S\f]*)?(<[^\S\f]*\![^\S\f]*(?:--)?[^\S\f]*\[[^\S\f]*if\b[^>]*>(?:(?:<[^\S\f]*\!)?[^\S\f]*--[^\S\f]*>)?)(?:[\t ]*[\n\r][^\S\f]*)?/ig,
+      function(str, p1) { return protectedTextAdd(p1); })
+    /*
+      <![endif]>
+      <![endif]-->
+      <!--<![endif]-->
+    */
+    .replace(/(?:[\t ]*[\n\r][^\S\f]*)?((?:<[^\S\f]*\![^\S\f]*--[^\S\f]*)?<[^\S\f]*\![^\S\f]*\[[^\S\f]*endif\b[^>]*>)(?:[\t ]*[\n\r][^\S\f]*)?/ig,
+      function(str, p1) { return protectedTextAdd(p1); })
+  ;
+
+  // HTML elements which include CDATA/preformatted text
+  html = html.replace(/(<[^\S\f]*(textarea|script|style|pre)\b[^>]*>)([\s\S]*?)(<[^\S\f]*\/[^\S\f]*\2\b[^>]*>)/ig,
+    function(str, startTag, tagName, innerHtml, endTag) {
+      var splitHtml;
+      if (innerHtml !== '') {
+        if (tagName.toLowerCase() === 'pre') { // Allow nesting tags.
+          splitHtml = '';
+          innerHtml = innerHtml.replace(/([\s\S]*?)(<[^>]+>)/g,
+            function(str, text, tag) {
+              splitHtml += protectedTextAdd(text) + tag;
+              return '';
+            });
+          splitHtml += protectedTextAdd(innerHtml); // Last text.
+          return startTag + splitHtml + endTag;
+        } else {
+          return startTag + protectedTextAdd(innerHtml) + endTag;
+        }
+      } else { return startTag + endTag; }
+    });
+
+  // Additional protected texts
+  if (options && options.protect) {
+    (Array.isArray(options.protect) ? options.protect : [options.protect]).forEach(function(re) {
+      if (re instanceof RegExp) {
+        html = html.replace(re, function(str) { return protectedTextAdd(str); });
+      }
+      // Now, ECMAScript doesn't support lookbehind pattern of RegExp. e.g. (?<=...)
+      // Alternative solution: Accept { re: /(pre)(needed)/g, capture: 2 }
+      // But, ECMAScript doesn't support offset of submatches. (Like Perl @LAST_MATCH_START)
+      // Example problem: /(<(div|span)>)(.+?)(<\/\1>)/
+      /*
+      else if (typeof re === 'object' && re.regexp instanceof RegExp) {
+        re.capture = parseInt(re.capture, 10) || 1;
+        if (re.capture < 1) { return; } // Invalid parameter
+        var capIndex = re.capture - 1; // Capturing position to index of Array
+        html = html.replace(re.regexp, function(str) {
+          var caps;
+          // replace(str, p1, p2, offset, s) capturing parentheses = arguments.length - 3
+          if (capIndex > arguments.length - 4) { return str; } // Invalid parameter (Don't change)
+          caps = Array.prototype.slice.call(arguments, 1, -2); // To Array
+          if (caps[capIndex] === '') { return str; }
+          return (capIndex > 0 ? caps.slice(0, capIndex).join('') : '') +
+            protectedTextAdd(caps[capIndex]) +
+            (capIndex < caps.length - 1 ? caps.slice(capIndex + 1).join('') : '');
+        });
+      }
+      */
+    });
+  }
+
+  // Restore unprotected texts
+  html = replaceComplete(html, /\f\!(\d+)\f/g,
+    function(str, p1) { return unprotectedText[p1] || ''; });
+
+  // HTML comments
+  // Texts in CDATA (not HTML) or preformatted are excepted.
+  html = html.replace(/<[^\S\f]*\![^\S\f]*--[\s\S]*?--[^\S\f]*>/g, '');
+
+  // Attributes of tags
+  html = html.replace(/<([^>]+)>/g,
+    function(str, tagInner) {
+      tagInner = tagInner.replace(/("|')([\s\S]*?)\1/g,
+        function(str, quot, innerQuot) {
+          return quot + protectedTextAdd(innerQuot) + quot;
+        });
+      return '<' + tagInner + '>';
+    });
+
+  // embed
+  embedElms = Object.keys(PHRASING_ELEMENTS)
+    .filter(function(tagName) { return PHRASING_ELEMENTS[tagName].embed; }).join('|'); // tagName is safe
+  html = html.replace(new RegExp('(?:[\\t ]*[\\n\\r][^\\S\\f]*)?(<[^\\S\\f]*\\/?[^\\S\\f]*(?:' + embedElms + ')\\b[^>]*>)(?:[\\t ]*[\\n\\r][^\\S\\f]*)?', 'ig'), '$1');
+
+  //==================================== REMOVE
+
+  // The [\n\r\t ] may be used for separator of the words or for margins of the elements.
+  html = html.replace(/[\n\r\t ]+/g, ' ') // \s includes many others
+  .replace(/^ +| +$/g, ''); // Not .trim() that removes \f.
+
+  // Whitespaces in tags
+  html = html.replace(/<([^>]+)>/g,
+    function(str, tagInner) {
+      tagInner = tagInner
+        .replace(/^ +| +$/g, '') // Not .trim() that removes \f.
+        .replace(/\/ +/g, '/') // Remove whitespaces in </ p>, but keep those in <br />
+        .replace(/ *= */g, '=')
+      ;
+      return '<' + tagInner + '>';
+    });
+
+  // Whitespaces between HTML tags
+  html = html.replace(/( *)([\s\S]*?)( *)(< *(\/)? *([^ >\/]+)[^>]*>)/g,
+    function(str, leadSpace, text, trailSpace, tag, isEnd, tagName) {
+      tagName = tagName.toLowerCase();
+      if (tagName === 'br' || tagName === 'wbr') {
+        // Break
+        htmlWk += (text ? (lastIsEnd ?
+            lastPhTags + (lastTrailSpace || leadSpace) + text :
+            (lastLeadSpace || leadSpace) + lastPhTags + text) : lastPhTags) +
+          tag;
+        lastLeadSpace = lastTrailSpace = lastPhTags = '';
+        lastIsEnd = true;
+      } else if (PHRASING_ELEMENTS[tagName]) {
+        if (PHRASING_ELEMENTS[tagName].altBlock) {
+          // Break
+          if (isEnd) {
+            htmlWk += (text ? (lastIsEnd ?
+                lastPhTags + (lastTrailSpace || leadSpace) + text :
+                (lastLeadSpace || leadSpace) + lastPhTags + text) : lastPhTags) +
+              tag;
+          } else {
+            htmlWk += (lastIsEnd ?
+                lastPhTags + (lastTrailSpace || leadSpace) + text :
+                (lastLeadSpace || leadSpace) + lastPhTags + text) +
+              (text ? trailSpace : '') + tag;
+          }
+          lastLeadSpace = lastTrailSpace = lastPhTags = '';
+          lastIsEnd = true;
+        } else if (PHRASING_ELEMENTS[tagName].empty) {
+          // Break
+          htmlWk += (lastIsEnd ?
+              lastPhTags + (lastTrailSpace || leadSpace) + text :
+              (lastLeadSpace || leadSpace) + lastPhTags + text) +
+            (text ? trailSpace : '') + tag;
+          lastLeadSpace = lastTrailSpace = lastPhTags = '';
+          lastIsEnd = true;
+        } else {
+          if (isEnd) {
+            if (text) {
+              // Break
+              htmlWk += lastIsEnd ?
+                lastPhTags + (lastTrailSpace || leadSpace) + text :
+                (lastLeadSpace || leadSpace) + lastPhTags + text;
+              lastLeadSpace = '';
+              lastTrailSpace = trailSpace;
+              lastPhTags = tag;
+            } else {
+              if (lastIsEnd) {
+                lastTrailSpace = lastTrailSpace || leadSpace;
+                lastPhTags += tag;
+              } else {
+                // Break
+                htmlWk += lastPhTags;
+                lastTrailSpace = lastLeadSpace || leadSpace;
+                lastLeadSpace = '';
+                lastPhTags = tag;
+              }
+            }
+          } else {
+            if (text) {
+              // Break
+              htmlWk += lastIsEnd ?
+                lastPhTags + (lastTrailSpace || leadSpace) + text :
+                (lastLeadSpace || leadSpace) + lastPhTags + text;
+              lastLeadSpace = trailSpace;
+              lastTrailSpace = '';
+              lastPhTags = tag;
+            } else {
+              if (lastIsEnd) {
+                // Break
+                htmlWk += lastPhTags;
+                lastLeadSpace = lastTrailSpace || leadSpace;
+                lastTrailSpace = '';
+                lastPhTags = tag;
+              } else {
+                lastLeadSpace = lastLeadSpace || leadSpace;
+                lastPhTags += tag;
+              }
+            }
+          }
+          lastIsEnd = isEnd;
+        }
+      } else {
+        // Break
+        htmlWk += (text ? (lastIsEnd ?
+            lastPhTags + (lastTrailSpace || leadSpace) + text :
+            (lastLeadSpace || leadSpace) + lastPhTags + text) : lastPhTags) +
+          tag;
+        lastLeadSpace = lastTrailSpace = lastPhTags = '';
+        lastIsEnd = true;
+      }
+      return '';
+    })
+    // Text after last tag (But, it's wrong HTML)
+    .replace(/^( *)([\s\S]*)$/,
+      function(str, leadSpace, text) {
+        htmlWk += (text ? (lastIsEnd ?
+            lastPhTags + (lastTrailSpace || leadSpace) + text :
+            (lastLeadSpace || leadSpace) + lastPhTags + text) : lastPhTags);
+        return '';
+      });
+  html = htmlWk;
+
+  // Additional editing
+  if (options && typeof options.edit === 'function') {
+    html = options.edit(html);
+    if (typeof html !== 'string') { html = ''; }
+  }
+
+  // Restore [un]protected texts
+  html = replaceComplete(html, /\f(\!)?(\d+)\f/g,
+    function(str, p1, p2) { return (p1 ? unprotectedText[p2] : protectedText[p2]) || ''; });
+
+  return html;
+};
+
+},{}],66:[function(require,module,exports){
 module.exports = CollectingHandler;
 
 function CollectingHandler(cbs){
@@ -11870,7 +12259,7 @@ CollectingHandler.prototype.restart = function(){
 	}
 };
 
-},{"./":72}],66:[function(require,module,exports){
+},{"./":73}],67:[function(require,module,exports){
 var index = require("./index.js"),
     DomHandler = index.DomHandler,
 	DomUtils = index.DomUtils;
@@ -11967,7 +12356,7 @@ FeedHandler.prototype.onend = function(){
 
 module.exports = FeedHandler;
 
-},{"./index.js":72,"util":60}],67:[function(require,module,exports){
+},{"./index.js":73,"util":60}],68:[function(require,module,exports){
 var Tokenizer = require("./Tokenizer.js");
 
 /*
@@ -12319,7 +12708,7 @@ Parser.prototype.done = Parser.prototype.end;
 
 module.exports = Parser;
 
-},{"./Tokenizer.js":70,"events":42,"util":60}],68:[function(require,module,exports){
+},{"./Tokenizer.js":71,"events":42,"util":60}],69:[function(require,module,exports){
 module.exports = ProxyHandler;
 
 function ProxyHandler(cbs){
@@ -12347,7 +12736,7 @@ Object.keys(EVENTS).forEach(function(name){
 		throw Error("wrong number of arguments");
 	}
 });
-},{"./":72}],69:[function(require,module,exports){
+},{"./":73}],70:[function(require,module,exports){
 module.exports = Stream;
 
 var Parser = require("./WritableStream.js");
@@ -12383,7 +12772,7 @@ Object.keys(EVENTS).forEach(function(name){
 		throw Error("wrong number of arguments!");
 	}
 });
-},{"../":72,"./WritableStream.js":71,"util":60}],70:[function(require,module,exports){
+},{"../":73,"./WritableStream.js":72,"util":60}],71:[function(require,module,exports){
 module.exports = Tokenizer;
 
 var decodeCodePoint = require("entities/lib/decode_codepoint.js"),
@@ -13291,7 +13680,7 @@ Tokenizer.prototype._emitPartial = function(value){
 	}
 };
 
-},{"entities/lib/decode_codepoint.js":94,"entities/maps/entities.json":96,"entities/maps/legacy.json":97,"entities/maps/xml.json":98}],71:[function(require,module,exports){
+},{"entities/lib/decode_codepoint.js":95,"entities/maps/entities.json":97,"entities/maps/legacy.json":98,"entities/maps/xml.json":99}],72:[function(require,module,exports){
 module.exports = Stream;
 
 var Parser = require("./Parser.js"),
@@ -13313,7 +13702,7 @@ WritableStream.prototype._write = function(chunk, encoding, cb){
 	this._parser.write(chunk);
 	cb();
 };
-},{"./Parser.js":67,"readable-stream":64,"stream":57,"util":60}],72:[function(require,module,exports){
+},{"./Parser.js":68,"readable-stream":64,"stream":57,"util":60}],73:[function(require,module,exports){
 var Parser = require("./Parser.js"),
     DomHandler = require("domhandler");
 
@@ -13383,7 +13772,7 @@ module.exports = {
 	}
 };
 
-},{"./CollectingHandler.js":65,"./FeedHandler.js":66,"./Parser.js":67,"./ProxyHandler.js":68,"./Stream.js":69,"./Tokenizer.js":70,"./WritableStream.js":71,"domelementtype":73,"domhandler":74,"domutils":77}],73:[function(require,module,exports){
+},{"./CollectingHandler.js":66,"./FeedHandler.js":67,"./Parser.js":68,"./ProxyHandler.js":69,"./Stream.js":70,"./Tokenizer.js":71,"./WritableStream.js":72,"domelementtype":74,"domhandler":75,"domutils":78}],74:[function(require,module,exports){
 //Types of elements found in the DOM
 module.exports = {
 	Text: "text", //Text
@@ -13400,7 +13789,7 @@ module.exports = {
 	}
 };
 
-},{}],74:[function(require,module,exports){
+},{}],75:[function(require,module,exports){
 var ElementType = require("domelementtype");
 
 var re_whitespace = /\s+/g;
@@ -13584,7 +13973,7 @@ DomHandler.prototype.onprocessinginstruction = function(name, data){
 
 module.exports = DomHandler;
 
-},{"./lib/element":75,"./lib/node":76,"domelementtype":73}],75:[function(require,module,exports){
+},{"./lib/element":76,"./lib/node":77,"domelementtype":74}],76:[function(require,module,exports){
 // DOM-Level-1-compliant structure
 var NodePrototype = require('./node');
 var ElementPrototype = module.exports = Object.create(NodePrototype);
@@ -13606,7 +13995,7 @@ Object.keys(domLvl1).forEach(function(key) {
 	});
 });
 
-},{"./node":76}],76:[function(require,module,exports){
+},{"./node":77}],77:[function(require,module,exports){
 // This object will be used as the prototype for Nodes when creating a
 // DOM-Level-1-compliant structure.
 var NodePrototype = module.exports = {
@@ -13652,7 +14041,7 @@ Object.keys(domLvl1).forEach(function(key) {
 	});
 });
 
-},{}],77:[function(require,module,exports){
+},{}],78:[function(require,module,exports){
 var DomUtils = module.exports;
 
 [
@@ -13668,7 +14057,7 @@ var DomUtils = module.exports;
 	});
 });
 
-},{"./lib/helpers":78,"./lib/legacy":79,"./lib/manipulation":80,"./lib/querying":81,"./lib/stringify":82,"./lib/traversal":83}],78:[function(require,module,exports){
+},{"./lib/helpers":79,"./lib/legacy":80,"./lib/manipulation":81,"./lib/querying":82,"./lib/stringify":83,"./lib/traversal":84}],79:[function(require,module,exports){
 // removeSubsets
 // Given an array of nodes, remove any member that is contained by another.
 exports.removeSubsets = function(nodes) {
@@ -13811,7 +14200,7 @@ exports.uniqueSort = function(nodes) {
 	return nodes;
 };
 
-},{}],79:[function(require,module,exports){
+},{}],80:[function(require,module,exports){
 var ElementType = require("domelementtype");
 var isTag = exports.isTag = ElementType.isTag;
 
@@ -13900,7 +14289,7 @@ exports.getElementsByTagType = function(type, element, recurse, limit){
 	return this.filter(Checks.tag_type(type), element, recurse, limit);
 };
 
-},{"domelementtype":73}],80:[function(require,module,exports){
+},{"domelementtype":74}],81:[function(require,module,exports){
 exports.removeElement = function(elem){
 	if(elem.prev) elem.prev.next = elem.next;
 	if(elem.next) elem.next.prev = elem.prev;
@@ -13979,7 +14368,7 @@ exports.prepend = function(elem, prev){
 
 
 
-},{}],81:[function(require,module,exports){
+},{}],82:[function(require,module,exports){
 var isTag = require("domelementtype").isTag;
 
 module.exports = {
@@ -14075,7 +14464,7 @@ function findAll(test, elems){
 	return result;
 }
 
-},{"domelementtype":73}],82:[function(require,module,exports){
+},{"domelementtype":74}],83:[function(require,module,exports){
 var ElementType = require("domelementtype"),
     getOuterHTML = require("dom-serializer"),
     isTag = ElementType.isTag;
@@ -14099,7 +14488,7 @@ function getText(elem){
 	return "";
 }
 
-},{"dom-serializer":84,"domelementtype":73}],83:[function(require,module,exports){
+},{"dom-serializer":85,"domelementtype":74}],84:[function(require,module,exports){
 var getChildren = exports.getChildren = function(elem){
 	return elem.children;
 };
@@ -14125,7 +14514,7 @@ exports.getName = function(elem){
 	return elem.name;
 };
 
-},{}],84:[function(require,module,exports){
+},{}],85:[function(require,module,exports){
 /*
   Module dependencies
 */
@@ -14305,7 +14694,7 @@ function renderComment(elem) {
   return '<!--' + elem.data + '-->';
 }
 
-},{"domelementtype":85,"entities":86}],85:[function(require,module,exports){
+},{"domelementtype":86,"entities":87}],86:[function(require,module,exports){
 //Types of elements found in the DOM
 module.exports = {
 	Text: "text", //Text
@@ -14320,31 +14709,31 @@ module.exports = {
 		return elem.type === "tag" || elem.type === "script" || elem.type === "style";
 	}
 };
-},{}],86:[function(require,module,exports){
+},{}],87:[function(require,module,exports){
 arguments[4][25][0].apply(exports,arguments)
-},{"./lib/decode.js":87,"./lib/encode.js":89,"dup":25}],87:[function(require,module,exports){
+},{"./lib/decode.js":88,"./lib/encode.js":90,"dup":25}],88:[function(require,module,exports){
 arguments[4][26][0].apply(exports,arguments)
-},{"../maps/entities.json":91,"../maps/legacy.json":92,"../maps/xml.json":93,"./decode_codepoint.js":88,"dup":26}],88:[function(require,module,exports){
+},{"../maps/entities.json":92,"../maps/legacy.json":93,"../maps/xml.json":94,"./decode_codepoint.js":89,"dup":26}],89:[function(require,module,exports){
 arguments[4][27][0].apply(exports,arguments)
-},{"../maps/decode.json":90,"dup":27}],89:[function(require,module,exports){
+},{"../maps/decode.json":91,"dup":27}],90:[function(require,module,exports){
 arguments[4][28][0].apply(exports,arguments)
-},{"../maps/entities.json":91,"../maps/xml.json":93,"dup":28}],90:[function(require,module,exports){
+},{"../maps/entities.json":92,"../maps/xml.json":94,"dup":28}],91:[function(require,module,exports){
 arguments[4][29][0].apply(exports,arguments)
-},{"dup":29}],91:[function(require,module,exports){
+},{"dup":29}],92:[function(require,module,exports){
 arguments[4][30][0].apply(exports,arguments)
-},{"dup":30}],92:[function(require,module,exports){
+},{"dup":30}],93:[function(require,module,exports){
 arguments[4][31][0].apply(exports,arguments)
-},{"dup":31}],93:[function(require,module,exports){
+},{"dup":31}],94:[function(require,module,exports){
 arguments[4][32][0].apply(exports,arguments)
-},{"dup":32}],94:[function(require,module,exports){
+},{"dup":32}],95:[function(require,module,exports){
 arguments[4][27][0].apply(exports,arguments)
-},{"../maps/decode.json":95,"dup":27}],95:[function(require,module,exports){
+},{"../maps/decode.json":96,"dup":27}],96:[function(require,module,exports){
 arguments[4][29][0].apply(exports,arguments)
-},{"dup":29}],96:[function(require,module,exports){
+},{"dup":29}],97:[function(require,module,exports){
 arguments[4][30][0].apply(exports,arguments)
-},{"dup":30}],97:[function(require,module,exports){
+},{"dup":30}],98:[function(require,module,exports){
 arguments[4][31][0].apply(exports,arguments)
-},{"dup":31}],98:[function(require,module,exports){
+},{"dup":31}],99:[function(require,module,exports){
 arguments[4][32][0].apply(exports,arguments)
 },{"dup":32}]},{},[1])(1)
 });

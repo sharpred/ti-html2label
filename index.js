@@ -38,10 +38,25 @@ exports.filter = function(html, whitelist, callback) {
             getListViewItems,
             getTableRowItems,
             getLabels,
+            getImages,
             template,
             labels = [];
-        //a listView template
 
+        getImages = function(item) {
+            var images = [],
+                obj = {};
+            try {
+                obj.src = item.attribs.src;
+                obj.height = item.attribs.height;
+                obj.width = item.attribs.width;
+                obj.type = "imageView";
+                images.push(obj);
+            } catch(ex) {
+                console.error(ex);
+            } finally {
+                return images;
+            }
+        };
         getLabels = function(item) {
             var obj = {};
             try {
@@ -131,7 +146,8 @@ exports.filter = function(html, whitelist, callback) {
                     tree = dom.slice();
                 }
                 tree.forEach(function(item) {
-                    var obj = {};
+                    var obj = {},
+                        images = [];
                     if (item.children) {
                         walker(item.children);
                     }
@@ -142,6 +158,11 @@ exports.filter = function(html, whitelist, callback) {
                             getLabels(item);
                             labels.forEach(function(label) {
                                 objects.push(label);
+                            });
+                        } else if (item.name === "img") {
+                            images = getImages(item);
+                            images.forEach(function(image) {
+                                objects.push(image);
                             });
                         } else {
                             //non specials will be converted to simple labels
@@ -168,14 +189,13 @@ exports.filter = function(html, whitelist, callback) {
                 var lbl,
                     klass,
                     style,
-                    lv,
-                    lvs,
+                    iv,
                     data = [],
                     tv,
                     tvs,
                     tvr;
                 obj || ( obj = {});
-                if (obj.type === "label") {
+                if (obj.type === "label" && obj.text) {
 
                     lbl = Ti.UI.createLabel({
                         text : obj.text
@@ -248,7 +268,20 @@ exports.filter = function(html, whitelist, callback) {
                     }
 
                     tiObjects.push(tv);
+                }
 
+                if (obj.type === "imageView" && obj.src && obj.height && obj.width) {
+                    iv = Ti.UI.createImageView({
+                        "image" : obj.src,
+                        "height" : obj.height,
+                        "width" : obj.width
+                    });
+                    style = $.createStyle({
+                        classes : 'imageViewRow',
+                        apiName : 'ImageViewRow'
+                    });
+                    iv.applyProperties(style);
+                    tiObjects.push(iv);
                 }
             });
         } catch(ex) {
@@ -272,12 +305,13 @@ exports.filter = function(html, whitelist, callback) {
     parser = new htmlparser.Parser(handler);
     //remove any break tags
     html = html.replace(/\<br\>|\<br \/\>|\<hr\>|\<hr \/\>/g, "");
+    //remove whitespace and line breaks from markup
+    html = require('htmlclean')(html);
     //filter the supplied HTML and fire the callback
     filter(html, whitelist, function(error, data) {
         if (error) {
             callback(error);
         } else {
-            console.log(data);
             parser.parseComplete(data);
         }
     });
