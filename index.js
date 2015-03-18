@@ -145,9 +145,7 @@ exports.filter = function(html, whitelist, callback) {
                     }
                 });
             }
-        } catch(ex) {
-            console.error(ex);
-        } finally {
+            //create the titanium objects
             objects.forEach(function(obj) {
                 var lbl,
                     klass,
@@ -227,6 +225,9 @@ exports.filter = function(html, whitelist, callback) {
                     tiObjects.push(tv);
                 }
             });
+        } catch(ex) {
+            console.error(ex);
+        } finally {
             objects = null;
             return tiObjects;
         }
