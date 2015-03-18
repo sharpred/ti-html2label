@@ -123,7 +123,7 @@
 	selectedBackgroundColor: 'white'
 }
 
-".imageViewRow":{
+".imageView":{
 	top: 20,
 	touchEnabled: false
 }

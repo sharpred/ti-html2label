@@ -277,8 +277,8 @@ exports.filter = function(html, whitelist, callback) {
                         "width" : obj.width
                     });
                     style = $.createStyle({
-                        classes : 'imageViewRow',
-                        apiName : 'ImageViewRow'
+                        classes : 'imageView',
+                        apiName : 'ImageView'
                     });
                     iv.applyProperties(style);
                     tiObjects.push(iv);
