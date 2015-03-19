@@ -66,25 +66,35 @@ exports.filter = function(html, whitelist, callback) {
             }
         };
         getLabels = function(item) {
-            var obj = {};
+            var obj = {},
+                txt = "",
+                labels = [],
+                childLabels = [];
             try {
-                obj.type = "label";
-                obj.attribs = item.attribs;
-                if (item.name === 'a') {
-                    item.attribs.class = "a";
-                }
                 if (item.children && item.children.length > 0) {
                     item.children.forEach(function(child) {
+                        obj = {};
+                        obj.type = "label";
+                        if (item.name === 'a') {
+                            item.attribs.class = "a";
+                        }
+                        obj.attribs = item.attribs;
                         if (child.type === "text" && child.data) {
-                            obj.text = entities.decodeHTML(child.data);
+                            txt = entities.decodeHTML(child.data);
+                            obj.text = txt;
+                            labels.push(obj);
                         } else if (child.type === "tag") {
-                            getLabels(child);
+                            childLabels = getLabels(child);
+                            childLabels.forEach(function(lbl) {
+                                labels.push(lbl);
+                            });
                         }
                     });
                 }
-                labels.push(obj);
             } catch(ex) {
                 console.error(ex);
+            } finally {
+                return labels;
             }
         };
         getListViewItems = function(data) {
@@ -155,15 +165,15 @@ exports.filter = function(html, whitelist, callback) {
                 }
                 tree.forEach(function(item) {
                     var obj = {},
-                        images = [];
+                        images = [],
+                        labels = [];
                     if (item.children) {
                         walker(item.children);
                     }
                     if (item.type === "tag") {
                         if (item.name === 'p' || item.name === 'a') {
                             //reinitialise labels array as getLabels is recursive
-                            labels = [];
-                            getLabels(item);
+                            labels = getLabels(item);
                             labels.forEach(function(label) {
                                 objects.push(label);
                             });
