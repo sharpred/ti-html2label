@@ -71,22 +71,28 @@ exports.filter = function(html, whitelist, callback) {
                 labels = [],
                 childLabels = [];
             try {
+                obj = {
+                    links : [],
+                    texts : []
+                };
+                obj.type = "label";
+                if (item.name === 'a' && item.attribs.href) {
+                    obj.links.push(item.attribs.href);
+                }
                 if (item.children && item.children.length > 0) {
                     item.children.forEach(function(child) {
-                        obj = {};
-                        obj.type = "label";
-                        if (item.name === 'a') {
-                            item.attribs.class = "a";
-                        }
-                        obj.attribs = item.attribs;
                         if (child.type === "text" && child.data) {
                             txt = entities.decodeHTML(child.data);
-                            obj.text = txt;
-                            labels.push(obj);
+                            obj.texts.push(txt);
                         } else if (child.type === "tag") {
                             childLabels = getLabels(child);
                             childLabels.forEach(function(lbl) {
-                                labels.push(lbl);
+                                lbl.texts.forEach(function(txt) {
+                                    obj.texts.push(txt);
+                                });
+                                lbl.links.forEach(function(link) {
+                                    obj.links.push(link);
+                                });
                             });
                         }
                     });
@@ -94,7 +100,7 @@ exports.filter = function(html, whitelist, callback) {
             } catch(ex) {
                 console.error(ex);
             } finally {
-                return labels;
+                return [obj];
             }
         };
         getListViewItems = function(data) {
@@ -175,6 +181,7 @@ exports.filter = function(html, whitelist, callback) {
                             //reinitialise labels array as getLabels is recursive
                             labels = getLabels(item);
                             labels.forEach(function(label) {
+                                label.text = label.texts.join("");
                                 objects.push(label);
                             });
                         } else if (item.name === "img") {
