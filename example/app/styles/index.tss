@@ -12,6 +12,16 @@
 	top: 10
 }
 
+".p": {
+	font: {
+		fontSize: 14
+	},
+	color: '#000',
+	left: 10,
+	right: 10,
+	top: 10
+}
+
 ".a": {
 	font: {
 		fontSize: 14
@@ -130,6 +140,5 @@
 
 ".scrollView": {
 	top: 20,
-	layout: "vertical",
-	height: Ti.UI.SIZE
+	layout: "vertical"
 }

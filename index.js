@@ -34,7 +34,6 @@ exports.filter = function(html, whitelist, callback) {
             tree = [],
             objects = [],
             tiObjects = [],
-            getLabels,
             getListViewItems,
             getTableRowItems,
             getLabels,
@@ -54,6 +53,9 @@ exports.filter = function(html, whitelist, callback) {
                 if (item.attribs.height && item.attribs.width) {
                     obj.height = item.attribs.height;
                     obj.width = item.attribs.width;
+                } else {
+                    obj.height = Ti.UI.SIZE;
+                    obj.width = Ti.UI.SIZE;
                 }
                 obj.type = "imageView";
                 images.push(obj);
@@ -74,6 +76,7 @@ exports.filter = function(html, whitelist, callback) {
                     texts : []
                 };
                 obj.type = "label";
+                obj.class = item.name;
                 if (item.name === 'a' && item.attribs.href) {
                     obj.links.push(item.attribs.href);
                 }
@@ -170,12 +173,13 @@ exports.filter = function(html, whitelist, callback) {
                 tree.forEach(function(item) {
                     var obj = {},
                         images = [],
-                        labels = [];
+                        labels = [],
+                        specialTags = ['img', 'table', 'td', 'th', 'tr', 'ol', 'ul', 'li'];
                     if (item.children) {
                         walker(item.children);
                     }
                     if (item.type === "tag") {
-                        if (item.name === 'p' || item.name === 'a') {
+                        if (specialTags.indexOf(item.name) === -1) {
                             //reinitialise labels array as getLabels is recursive
                             labels = getLabels(item);
                             labels.forEach(function(label) {
@@ -188,10 +192,8 @@ exports.filter = function(html, whitelist, callback) {
                                 objects.push(image);
                             });
                         } else {
-                            //non specials will be converted to simple labels
                             obj.type = item.name;
                             obj.attribs = item.attribs;
-
                             if (item.children && item.children.length > 0) {
                                 if (item.name === 'ol' || item.name === 'ul') {
                                     obj.type = "listView";
@@ -224,8 +226,8 @@ exports.filter = function(html, whitelist, callback) {
                         text : obj.text
                     });
 
-                    if (obj.attribs && obj.attribs.class) {
-                        klass = obj.attribs.class;
+                    if (obj.class) {
+                        klass = obj.class;
                     } else {
                         klass = "label";
                     }
@@ -238,6 +240,55 @@ exports.filter = function(html, whitelist, callback) {
 
                     lbl.applyProperties(style);
                     tiObjects.push(lbl);
+                    if (obj.links && obj.links.length > 0) {
+                        //add a cancel button
+                        obj.links.push("cancel");
+                        lbl = Ti.UI.createLabel({
+                            text : 'links'
+                        });
+
+                        //note that you need to to use .call($) to bind createStyle to your page
+                        style = $.createStyle({
+                            classes : 'a',
+                            apiName : 'Label'
+                        });
+
+                        lbl.applyProperties(style);
+
+                        var opts = {
+                            title : 'Open Link?',
+                            cancel : obj.links.length,
+                            options : obj.links
+                        };
+
+                        var dialog = Ti.UI.createOptionDialog(opts);
+
+                        dialog.addEventListener('click', function(e) {
+                            var intent,
+                                url,
+                                index;
+                            index = e.index;
+                            url = e.source.options[index];
+                            if (url !== "cancel") {
+                                if (Ti.Platform.osname !== "android") {
+                                    Ti.Platform.openURL(url);
+                                } else {
+                                    intent = Ti.Android.createIntent({
+                                        action : Ti.Android.ACTION_VIEW,
+                                        data : url
+                                    });
+                                    Ti.Android.currentActivity.startActivity(intent);
+                                }
+                            } else {
+                                dialog.hide();
+                            }
+                        });
+
+                        lbl.addEventListener('click', function(e) {
+                            dialog.show();
+                        });
+                        tiObjects.push(lbl);
+                    }
 
                 }
                 if ((obj.type === "tableView") || (obj.type === "listView")) {
@@ -335,7 +386,7 @@ exports.filter = function(html, whitelist, callback) {
         if (error) {
             callback(error);
         } else {
-            console.log(data);
+            //console.log(data);
             parser.parseComplete(data);
         }
     });
