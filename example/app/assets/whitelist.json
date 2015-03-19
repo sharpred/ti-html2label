@@ -29,17 +29,6 @@
     "style": {},
     "i": {},
     "b": {},
-    "title": "p class=\"title\"",
-    "h1": "p class=\"h1\"",
-    "h2": "p class=\"h2\"",
-    "h3": "p class=\"h3\"",
-    "h4": "p class=\"h4\"",
-    "h5": "p class=\"h5\"",
-    "i": "p class=\"em\"",
-    "b": "p class=\"strong\"",
-    "em": "p class=\"em\"",
-    "strong": "p class=\"strong\"",
-    "u": "p class=\"u\"",
     "*": {
         "style": {
             "color": "color",
