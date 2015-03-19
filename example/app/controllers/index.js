@@ -1,12 +1,14 @@
 var html,
     whitelist,
     filter;
-html = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'text.html').read().text;
+html = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'test2.html').read().text;
+console.log(html);
 //whitelist of attributes
 whitelist = JSON.parse(Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'whitelist.json').read().text);
 
 //note the use of .call($) to allow the use of $.createStyle
 
+/*
 require("com.stepupapps.html2native").filter.call($, html, whitelist, function(err, elements) {
     var lbl;
     if (err) {
@@ -22,3 +24,5 @@ require("com.stepupapps.html2native").filter.call($, html, whitelist, function(e
     }
     $.index.open();
 });
+*/
+$.index.open();
