@@ -29,6 +29,7 @@ exports.filter = function(html, whitelist, callback) {
             callback(ex);
         }
     };
+
     walker = function(dom) {
         var lbl,
             tree = [],
@@ -69,7 +70,8 @@ exports.filter = function(html, whitelist, callback) {
             var obj = {},
                 txt = "",
                 labels = [],
-                childLabels = [];
+                childLabels = [],
+                images = [];
             try {
                 obj = {
                     links : [],
@@ -86,15 +88,23 @@ exports.filter = function(html, whitelist, callback) {
                             txt = entities.decodeHTML(child.data);
                             obj.texts.push(txt);
                         } else if (child.type === "tag") {
-                            childLabels = getLabels(child);
-                            childLabels.forEach(function(lbl) {
-                                lbl.texts.forEach(function(txt) {
-                                    obj.texts.push(txt);
+                            //just push paragraph embedded images straight into objects array for assembly into a ti object
+                            if (child.name === "img") {
+                                images = getImages(child);
+                                images.forEach(function(image) {
+                                    objects.push(image);
                                 });
-                                lbl.links.forEach(function(link) {
-                                    obj.links.push(link);
+                            } else {
+                                childLabels = getLabels(child);
+                                childLabels.forEach(function(lbl) {
+                                    lbl.texts.forEach(function(txt) {
+                                        obj.texts.push(txt);
+                                    });
+                                    lbl.links.forEach(function(link) {
+                                        obj.links.push(link);
+                                    });
                                 });
-                            });
+                            }
                         }
                     });
                 }

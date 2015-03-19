@@ -1,7 +1,7 @@
 var html,
     whitelist,
     filter;
-html = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'test2.html').read().text;
+html = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'sample.html').read().text;
 //whitelist of attributes
 whitelist = JSON.parse(Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'whitelist.json').read().text);
 
@@ -19,6 +19,11 @@ require("com.stepupapps.html2native").filter.call($, html, whitelist, function(e
         elements.forEach(function(element) {
             $.scrollView.add(element);
         });
+        $.scrollView.height = Ti.UI.SIZE;
+        var view = Ti.UI.createView({
+            "height" : 750
+        });
+        $.scrollView.add(view);
     }
     $.index.open();
 });
