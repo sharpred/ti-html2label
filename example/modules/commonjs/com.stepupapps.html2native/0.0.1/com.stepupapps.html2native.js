@@ -47,10 +47,16 @@ exports.filter = function(html, whitelist, callback) {
         getImages = function(item) {
             var images = [],
                 obj = {};
+            item || ( item = {
+                attribs : {
+                }
+            });
             try {
                 obj.src = item.attribs.src;
-                obj.height = item.attribs.height;
-                obj.width = item.attribs.width;
+                if (item.attribs.height && item.attribs.width) {
+                    obj.height = item.attribs.height;
+                    obj.width = item.attribs.width;
+                }
                 obj.type = "imageView";
                 images.push(obj);
             } catch(ex) {
@@ -70,7 +76,7 @@ exports.filter = function(html, whitelist, callback) {
                 if (item.children && item.children.length > 0) {
                     item.children.forEach(function(child) {
                         if (child.type === "text" && child.data) {
-                            obj.text = child.data;
+                            obj.text = entities.decodeHTML(child.data);
                         } else if (child.type === "tag") {
                             getLabels(child);
                         }
@@ -92,7 +98,7 @@ exports.filter = function(html, whitelist, callback) {
                     if (item.type === "tag" && item.name === "li" && item.children) {
                         item.children.forEach(function(child) {
                             if (child.type === "text" && child.data) {
-                                obj.text = child.data;
+                                obj.text = entities.decodeHTML(child.data);
                             }
                         });
                     }
@@ -117,7 +123,7 @@ exports.filter = function(html, whitelist, callback) {
                         var txt = '';
                         item.children.forEach(function(child) {
                             if (child.type === "text" && child.data) {
-                                obj.text = child.data;
+                                obj.text = entities.decodeHTML(child.data);
                             } else if (child.type === "tag") {
                                 //if its a header we will make it a tableViewSection
                                 if (child.name === "th") {
@@ -247,7 +253,7 @@ exports.filter = function(html, whitelist, callback) {
                                 text : child.text
                             });
                             style = $.createStyle({
-                                classes : 'label',
+                                classes : 'tableViewRow',
                                 apiName : 'Label'
                             });
                             lbl.applyProperties(style);
