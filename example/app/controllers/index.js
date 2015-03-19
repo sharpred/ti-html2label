@@ -19,11 +19,6 @@ require("com.stepupapps.html2native").filter.call($, html, whitelist, function(e
         elements.forEach(function(element) {
             $.scrollView.add(element);
         });
-        $.scrollView.height = Ti.UI.SIZE;
-        var view = Ti.UI.createView({
-            "height" : 750
-        });
-        $.scrollView.add(view);
     }
     $.index.open();
 });

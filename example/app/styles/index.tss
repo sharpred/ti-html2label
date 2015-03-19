@@ -111,14 +111,16 @@
 	height: Titanium.UI.SIZE
 }
 
-".tableViewSection":{
+".tableViewHeader":{
 	font: {
 		fontSize: 18
 	},
 	left: 15,
 	right: 15,
 	top: 20,
-	height: 25
+	height: 25,
+	color: "white",
+	backgroundColor: '#c5c5c7'
 }
 
 ".tableViewRow":{
@@ -128,9 +130,7 @@
 	left: 15,
 	right: 15,
 	top: 10,
-	height: Ti.UI.SIZE,
-	touchEnabled: false,
-	selectedBackgroundColor: 'white'
+	height: 25
 }
 
 ".imageView":{

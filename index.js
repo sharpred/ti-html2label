@@ -314,17 +314,15 @@ exports.filter = function(html, whitelist, callback) {
 
                     obj.children.forEach(function(child) {
                         if (child.type === "tableViewSection" && child.text) {
-                            tvs = Ti.UI.createTableViewSection({
-                                "headerTitle" : child.text
+                            lbl = Ti.UI.createLabel({
+                                text : child.text
                             });
                             style = $.createStyle({
-                                classes : "tableViewSection",
-                                apiName : 'TableViewSection'
+                                classes : "tableViewHeader",
+                                apiName : 'Label'
                             });
-                            tvs.applyProperties(style);
                         }
                         if ((child.type === "tableViewRow") || (child.type === "listViewItem") && child.text) {
-                            tvr = Ti.UI.createTableViewRow();
                             lbl = Ti.UI.createLabel({
                                 text : child.text
                             });
@@ -332,26 +330,10 @@ exports.filter = function(html, whitelist, callback) {
                                 classes : 'tableViewRow',
                                 apiName : 'Label'
                             });
-                            lbl.applyProperties(style);
-                            style = $.createStyle({
-                                classes : 'tableViewRow',
-                                apiName : 'TableViewRow'
-                            });
-                            tvr.applyProperties(style);
-                            tvr.add(lbl);
-                            if (tvs) {
-                                tvs.add(tvr);
-                            } else {
-                                tv.appendRow(tvr);
-                            }
                         }
+                        lbl.applyProperties(style);
+                        tiObjects.push(lbl);
                     });
-
-                    if (tvs) {
-                        tv.appendSection(tvs);
-                    }
-
-                    tiObjects.push(tv);
                 }
 
                 if (obj.type === "imageView" && obj.src && obj.height && obj.width) {
