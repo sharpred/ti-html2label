@@ -330,6 +330,7 @@ exports.filter = function(html, whitelist, callback) {
         if (error) {
             callback(error);
         } else {
+            console.log(data);
             parser.parseComplete(data);
         }
     });
