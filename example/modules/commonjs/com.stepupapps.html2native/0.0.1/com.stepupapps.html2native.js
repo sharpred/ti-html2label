@@ -209,10 +209,12 @@ exports.filter = function(html, whitelist, callback) {
                             if (item.children && item.children.length > 0) {
                                 if (item.name === 'ol' || item.name === 'ul') {
                                     obj.type = "listView";
+                                    obj.class = item.name;
                                     obj.children = getListViewItems(item.children);
                                 }
                                 if (item.name === 'table') {
                                     obj.type = "tableView";
+                                    obj.class = "tableViewRow";
                                     obj.children = getTableRowItems(item.children);
                                 }
                             }
@@ -313,8 +315,10 @@ exports.filter = function(html, whitelist, callback) {
                     });
 
                     tv.applyProperties(style);
-
+                    //use a counter for <ol> elements
+                    var counter = 1;
                     obj.children.forEach(function(child) {
+                        var txt;
                         if (child.type === "tableViewSection" && child.text) {
                             lbl = Ti.UI.createLabel({
                                 text : child.text
@@ -325,11 +329,27 @@ exports.filter = function(html, whitelist, callback) {
                             });
                         }
                         if ((child.type === "tableViewRow") || (child.type === "listViewItem") && child.text) {
+                            if (obj.class) {
+                                klass = obj.class;
+                            } else {
+                                klass = "tableViewRow";
+                            }
+                            if (klass === "ol") {
+                                txt = "" + counter + " " + child.text;
+                                counter++;
+                            } else if (klass === "ul") {
+                                txt = "\u2022 " + child.text;
+                            } else {
+                                txt = child.text;
+                            }
+                            ;
                             lbl = Ti.UI.createLabel({
-                                text : child.text
+                                text : txt
                             });
+
+                            //note that you need to to use .call($) to bind createStyle to your page
                             style = $.createStyle({
-                                classes : 'tableViewRow',
+                                classes : klass,
                                 apiName : 'Label'
                             });
                         }
