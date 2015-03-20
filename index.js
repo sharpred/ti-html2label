@@ -1,4 +1,4 @@
-exports.filter = function(html, whitelist, callback) {
+exports.createHTML = function(html, whitelist, callback) {
     var view,
         filter,
         parser,
