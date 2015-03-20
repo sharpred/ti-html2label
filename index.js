@@ -79,14 +79,17 @@ exports.createHTML = function(html, whitelist, callback) {
                 };
                 obj.type = "label";
                 obj.class = item.name;
-                if (item.name === 'a' && item.attribs.href) {
-                    obj.links.push(item.attribs.href);
-                }
                 if (item.children && item.children.length > 0) {
                     item.children.forEach(function(child) {
                         if (child.type === "text" && child.data) {
                             txt = entities.decodeHTML(child.data);
                             obj.texts.push(txt);
+                            if (item.name === 'a' && item.attribs.href) {
+                                obj.links.push({
+                                    href : item.attribs.href,
+                                    title : item.attribs.title || txt
+                                });
+                            }
                         } else if (child.type === "tag") {
                             //just push paragraph embedded images straight into objects array for assembly into a ti object
                             if (child.name === "img") {
@@ -253,53 +256,61 @@ exports.createHTML = function(html, whitelist, callback) {
                     lbl.applyProperties(style);
                     tiObjects.push(lbl);
                     if (obj.links && obj.links.length > 0) {
-                        //add a cancel button
-                        obj.links.push("cancel");
-                        lbl = Ti.UI.createLabel({
-                            text : 'links'
-                        });
+                        obj.links.forEach(function(link) {
+                            var items = [],
+                                url;
+                            items.push(link.href);
+                            //add a cancel button
+                            items.push("cancel");
 
-                        //note that you need to to use .call($) to bind createStyle to your page
-                        style = $.createStyle({
-                            classes : 'a',
-                            apiName : 'Label'
-                        });
+                            lbl = Ti.UI.createLabel({
+                                text : link.title
+                            });
 
-                        lbl.applyProperties(style);
+                            //note that you need to to use .call($) to bind createStyle to your page
+                            style = $.createStyle({
+                                classes : 'a',
+                                apiName : 'Label'
+                            });
 
-                        var opts = {
-                            title : 'Open Link?',
-                            cancel : obj.links.length,
-                            options : obj.links
-                        };
+                            lbl.applyProperties(style);
 
-                        var dialog = Ti.UI.createOptionDialog(opts);
+                            var opts = {
+                                title : 'Open Link?',
+                                cancel : 1,
+                                options : items
+                            };
 
-                        dialog.addEventListener('click', function(e) {
-                            var intent,
-                                url,
-                                index;
-                            index = e.index;
-                            url = e.source.options[index];
-                            if (url !== "cancel") {
-                                if (Ti.Platform.osname !== "android") {
-                                    Ti.Platform.openURL(url);
+                            var dialog = Ti.UI.createOptionDialog(opts);
+
+                            dialog.addEventListener('click', function(e) {
+                                var intent,
+                                    url,
+                                    index;
+                                index = e.index;
+                                url = e.source.options[index];
+                                if (url !== "cancel") {
+                                    if (Ti.Platform.osname !== "android") {
+                                        Ti.Platform.openURL(url);
+                                    } else {
+                                        intent = Ti.Android.createIntent({
+                                            action : Ti.Android.ACTION_VIEW,
+                                            data : url
+                                        });
+                                        Ti.Android.currentActivity.startActivity(intent);
+                                    }
                                 } else {
-                                    intent = Ti.Android.createIntent({
-                                        action : Ti.Android.ACTION_VIEW,
-                                        data : url
-                                    });
-                                    Ti.Android.currentActivity.startActivity(intent);
+                                    dialog.hide();
                                 }
-                            } else {
-                                dialog.hide();
-                            }
+                            });
+
+                            lbl.addEventListener('click', function(e) {
+                                dialog.show();
+                            });
+                            tiObjects.push(lbl);
+
                         });
 
-                        lbl.addEventListener('click', function(e) {
-                            dialog.show();
-                        });
-                        tiObjects.push(lbl);
                     }
 
                 }
@@ -340,7 +351,7 @@ exports.createHTML = function(html, whitelist, callback) {
                             } else {
                                 txt = child.text;
                             }
-                            ;
+
                             lbl = Ti.UI.createLabel({
                                 text : txt
                             });
@@ -398,7 +409,7 @@ exports.createHTML = function(html, whitelist, callback) {
         if (error) {
             callback(error);
         } else {
-            //console.log(data);
+            //note that the handler function fires the success callback
             parser.parseComplete(data);
         }
     });
