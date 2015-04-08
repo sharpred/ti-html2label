@@ -40,5 +40,6 @@
   "bugs": {
     "url": "https://github.com/sharpred/ti-html2label/issues"
   },
-  "homepage": "https://github.com/sharpred/ti-html2label"
+  "homepage": "https://github.com/sharpred/ti-html2label",
+  "_nativeDependencies": {}
 }
