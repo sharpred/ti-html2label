@@ -132,6 +132,24 @@
 	top: 10
 }
 
+".ul":{
+	font: {
+		fontSize: 12
+	},
+	left: 15,
+	right: 15,
+	top: 10
+}
+
+".ol":{
+	font: {
+		fontSize: 12
+	},
+	left: 15,
+	right: 15,
+	top: 10
+}
+
 ".imageView":{
 	top: 20,
 	touchEnabled: false

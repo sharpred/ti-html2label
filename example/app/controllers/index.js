@@ -7,7 +7,7 @@ whitelist = JSON.parse(Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, '
 
 //note the use of .call($) to allow the use of $.createStyle
 
-require("com.stepupapps.html2native").filter.call($, html, whitelist, function(err, elements) {
+require("com.stepupapps.html2label").createHTML.call($, html, whitelist, function(err, elements) {
     var lbl;
     if (err) {
         console.error(err);

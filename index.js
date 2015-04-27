@@ -1,15 +1,158 @@
-exports.filter = function(html, whitelist, callback) {
+exports.createHTML = function(html, whitelist, callback) {
     var view,
         filter,
         parser,
         walker,
         handler,
+        getListViewItems,
+        getTableRowItems,
+        getLabels,
+        getImages,
         htmlparser = require("htmlparser2"),
         entities = require("entities"),
         css = require('css'),
     //needed to make $.createStyle available to this function (which must be invoked with .call)
         $ = this;
 
+    /*
+     * Helper functions
+     */
+    getImages = function(item) {
+        var images = [],
+            obj = {};
+        item = item || {
+            attribs : {
+            }
+        };
+        try {
+            obj.src = item.attribs.src;
+            if (item.attribs.height && item.attribs.width) {
+                obj.height = item.attribs.height;
+                obj.width = item.attribs.width;
+            } else {
+                obj.height = Ti.UI.SIZE;
+                obj.width = Ti.UI.SIZE;
+            }
+            obj.type = "imageView";
+            images.push(obj);
+        } catch(ex) {
+            console.error(ex);
+        } finally {
+            return images;
+        }
+    };
+    getLabels = function(item) {
+        var obj = {},
+            txt = "",
+            labels = [],
+            childLabels = [],
+            images = [];
+        try {
+            obj = {
+                links : [],
+                texts : []
+            };
+            obj.type = "label";
+            obj.class = item.name;
+            if (item.children && item.children.length > 0) {
+                item.children.forEach(function(child) {
+                    if (child.type === "text" && child.data) {
+                        txt = entities.decodeHTML(child.data);
+                        obj.texts.push(txt);
+                        if (item.name === 'a' && item.attribs.href) {
+                            obj.links.push({
+                                href : item.attribs.href,
+                                title : item.attribs.title || txt
+                            });
+                        }
+                    } else if (child.type === "tag") {
+                        //just push paragraph embedded images straight into objects array for assembly into a ti object
+                        if (child.name === "img") {
+                            images = getImages(child);
+                            images.forEach(function(image) {
+                                objects.push(image);
+                            });
+                        } else {
+                            childLabels = getLabels(child);
+                            childLabels.forEach(function(lbl) {
+                                lbl.texts.forEach(function(txt) {
+                                    obj.texts.push(txt);
+                                });
+                                lbl.links.forEach(function(link) {
+                                    obj.links.push(link);
+                                });
+                            });
+                        }
+                    }
+                });
+            }
+        } catch(ex) {
+            console.error(ex);
+        } finally {
+            return [obj];
+        }
+    };
+    getListViewItems = function(data) {
+        var kids = [];
+        try {
+            data.forEach(function(item) {
+                var obj = {};
+                obj.type = "listViewItem";
+                obj.attribs = item.attribs;
+                //should not be anything else, but just in case
+                if (item.type === "tag" && item.name === "li" && item.children) {
+                    item.children.forEach(function(child) {
+                        if (child.type === "text" && child.data) {
+                            obj.text = entities.decodeHTML(child.data);
+                        }
+                    });
+                }
+                kids.push(obj);
+            });
+        } catch(ex) {
+            console.error(ex);
+        } finally {
+            return kids;
+        }
+
+    };
+    getTableRowItems = function(data) {
+        var kids = [];
+        try {
+            data.forEach(function(item) {
+                var obj = {};
+                obj.type = "tableViewRow";
+                obj.attribs = item.attribs;
+                //should not be anything else, but just in case
+                if (item.type === "tag" && item.children) {
+                    var txt = '';
+                    item.children.forEach(function(child) {
+                        if (child.type === "text" && child.data) {
+                            obj.text = entities.decodeHTML(child.data);
+                        } else if (child.type === "tag") {
+                            //if its a header we will make it a tableViewSection
+                            if (child.name === "th") {
+                                obj.type = "tableViewSection";
+                            }
+                            if (child.children) {
+                                child.children.forEach(function(kid) {
+                                    if (kid.type === "text" && kid.data) {
+                                        txt = txt + " " + kid.data;
+                                    }
+                                });
+                                obj.text = txt;
+                            }
+                        }
+                    });
+                }
+                kids.push(obj);
+            });
+        } catch(ex) {
+            console.error(ex);
+        } finally {
+            return kids;
+        }
+    };
     filter = function(html, whitelist, callback) {
         var Filter = require("filterhtml"),
             filteredHTML,
@@ -29,152 +172,14 @@ exports.filter = function(html, whitelist, callback) {
             callback(ex);
         }
     };
-
     walker = function(dom) {
         var lbl,
             tree = [],
             objects = [],
             tiObjects = [],
-            getListViewItems,
-            getTableRowItems,
-            getLabels,
-            getImages,
             template,
             labels = [];
 
-        getImages = function(item) {
-            var images = [],
-                obj = {};
-            item || ( item = {
-                attribs : {
-                }
-            });
-            try {
-                obj.src = item.attribs.src;
-                if (item.attribs.height && item.attribs.width) {
-                    obj.height = item.attribs.height;
-                    obj.width = item.attribs.width;
-                } else {
-                    obj.height = Ti.UI.SIZE;
-                    obj.width = Ti.UI.SIZE;
-                }
-                obj.type = "imageView";
-                images.push(obj);
-            } catch(ex) {
-                console.error(ex);
-            } finally {
-                return images;
-            }
-        };
-        getLabels = function(item) {
-            var obj = {},
-                txt = "",
-                labels = [],
-                childLabels = [],
-                images = [];
-            try {
-                obj = {
-                    links : [],
-                    texts : []
-                };
-                obj.type = "label";
-                obj.class = item.name;
-                if (item.name === 'a' && item.attribs.href) {
-                    obj.links.push(item.attribs.href);
-                }
-                if (item.children && item.children.length > 0) {
-                    item.children.forEach(function(child) {
-                        if (child.type === "text" && child.data) {
-                            txt = entities.decodeHTML(child.data);
-                            obj.texts.push(txt);
-                        } else if (child.type === "tag") {
-                            //just push paragraph embedded images straight into objects array for assembly into a ti object
-                            if (child.name === "img") {
-                                images = getImages(child);
-                                images.forEach(function(image) {
-                                    objects.push(image);
-                                });
-                            } else {
-                                childLabels = getLabels(child);
-                                childLabels.forEach(function(lbl) {
-                                    lbl.texts.forEach(function(txt) {
-                                        obj.texts.push(txt);
-                                    });
-                                    lbl.links.forEach(function(link) {
-                                        obj.links.push(link);
-                                    });
-                                });
-                            }
-                        }
-                    });
-                }
-            } catch(ex) {
-                console.error(ex);
-            } finally {
-                return [obj];
-            }
-        };
-        getListViewItems = function(data) {
-            var kids = [];
-            try {
-                data.forEach(function(item) {
-                    var obj = {};
-                    obj.type = "listViewItem";
-                    obj.attribs = item.attribs;
-                    //should not be anything else, but just in case
-                    if (item.type === "tag" && item.name === "li" && item.children) {
-                        item.children.forEach(function(child) {
-                            if (child.type === "text" && child.data) {
-                                obj.text = entities.decodeHTML(child.data);
-                            }
-                        });
-                    }
-                    kids.push(obj);
-                });
-            } catch(ex) {
-                console.error(ex);
-            } finally {
-                return kids;
-            }
-
-        };
-        getTableRowItems = function(data) {
-            var kids = [];
-            try {
-                data.forEach(function(item) {
-                    var obj = {};
-                    obj.type = "tableViewRow";
-                    obj.attribs = item.attribs;
-                    //should not be anything else, but just in case
-                    if (item.type === "tag" && item.children) {
-                        var txt = '';
-                        item.children.forEach(function(child) {
-                            if (child.type === "text" && child.data) {
-                                obj.text = entities.decodeHTML(child.data);
-                            } else if (child.type === "tag") {
-                                //if its a header we will make it a tableViewSection
-                                if (child.name === "th") {
-                                    obj.type = "tableViewSection";
-                                }
-                                if (child.children) {
-                                    child.children.forEach(function(kid) {
-                                        if (kid.type === "text" && kid.data) {
-                                            txt = txt + " " + kid.data;
-                                        }
-                                    });
-                                    obj.text = txt;
-                                }
-                            }
-                        });
-                    }
-                    kids.push(obj);
-                });
-            } catch(ex) {
-                console.error(ex);
-            } finally {
-                return kids;
-            }
-        };
         try {
             if (dom) {
                 if (dom.slice) {
@@ -207,10 +212,12 @@ exports.filter = function(html, whitelist, callback) {
                             if (item.children && item.children.length > 0) {
                                 if (item.name === 'ol' || item.name === 'ul') {
                                     obj.type = "listView";
+                                    obj.class = item.name;
                                     obj.children = getListViewItems(item.children);
                                 }
                                 if (item.name === 'table') {
                                     obj.type = "tableView";
+                                    obj.class = "tableViewRow";
                                     obj.children = getTableRowItems(item.children);
                                 }
                             }
@@ -229,7 +236,7 @@ exports.filter = function(html, whitelist, callback) {
                     tv,
                     tvs,
                     tvr;
-                obj || ( obj = {});
+                obj = obj || {};
                 if (obj.type === "label" && obj.text) {
 
                     lbl = Ti.UI.createLabel({
@@ -251,53 +258,61 @@ exports.filter = function(html, whitelist, callback) {
                     lbl.applyProperties(style);
                     tiObjects.push(lbl);
                     if (obj.links && obj.links.length > 0) {
-                        //add a cancel button
-                        obj.links.push("cancel");
-                        lbl = Ti.UI.createLabel({
-                            text : 'links'
-                        });
+                        obj.links.forEach(function(link) {
+                            var items = [],
+                                url;
+                            items.push(link.href);
+                            //add a cancel button
+                            items.push("cancel");
 
-                        //note that you need to to use .call($) to bind createStyle to your page
-                        style = $.createStyle({
-                            classes : 'a',
-                            apiName : 'Label'
-                        });
+                            lbl = Ti.UI.createLabel({
+                                text : link.title
+                            });
 
-                        lbl.applyProperties(style);
+                            //note that you need to to use .call($) to bind createStyle to your page
+                            style = $.createStyle({
+                                classes : 'a',
+                                apiName : 'Label'
+                            });
 
-                        var opts = {
-                            title : 'Open Link?',
-                            cancel : obj.links.length,
-                            options : obj.links
-                        };
+                            lbl.applyProperties(style);
 
-                        var dialog = Ti.UI.createOptionDialog(opts);
+                            var opts = {
+                                title : 'Open Link?',
+                                cancel : 1,
+                                options : items
+                            };
 
-                        dialog.addEventListener('click', function(e) {
-                            var intent,
-                                url,
-                                index;
-                            index = e.index;
-                            url = e.source.options[index];
-                            if (url !== "cancel") {
-                                if (Ti.Platform.osname !== "android") {
-                                    Ti.Platform.openURL(url);
+                            var dialog = Ti.UI.createOptionDialog(opts);
+
+                            dialog.addEventListener('click', function(e) {
+                                var intent,
+                                    url,
+                                    index;
+                                index = e.index;
+                                url = e.source.options[index];
+                                if (url !== "cancel") {
+                                    if (Ti.Platform.osname !== "android") {
+                                        Ti.Platform.openURL(url);
+                                    } else {
+                                        intent = Ti.Android.createIntent({
+                                            action : Ti.Android.ACTION_VIEW,
+                                            data : url
+                                        });
+                                        Ti.Android.currentActivity.startActivity(intent);
+                                    }
                                 } else {
-                                    intent = Ti.Android.createIntent({
-                                        action : Ti.Android.ACTION_VIEW,
-                                        data : url
-                                    });
-                                    Ti.Android.currentActivity.startActivity(intent);
+                                    dialog.hide();
                                 }
-                            } else {
-                                dialog.hide();
-                            }
+                            });
+
+                            lbl.addEventListener('click', function(e) {
+                                dialog.show();
+                            });
+                            tiObjects.push(lbl);
+
                         });
 
-                        lbl.addEventListener('click', function(e) {
-                            dialog.show();
-                        });
-                        tiObjects.push(lbl);
                     }
 
                 }
@@ -311,8 +326,10 @@ exports.filter = function(html, whitelist, callback) {
                     });
 
                     tv.applyProperties(style);
-
+                    //use a counter for <ol> elements
+                    var counter = 1;
                     obj.children.forEach(function(child) {
+                        var txt;
                         if (child.type === "tableViewSection" && child.text) {
                             lbl = Ti.UI.createLabel({
                                 text : child.text
@@ -323,11 +340,27 @@ exports.filter = function(html, whitelist, callback) {
                             });
                         }
                         if ((child.type === "tableViewRow") || (child.type === "listViewItem") && child.text) {
+                            if (obj.class) {
+                                klass = obj.class;
+                            } else {
+                                klass = "tableViewRow";
+                            }
+                            if (klass === "ol") {
+                                txt = "" + counter + " " + child.text;
+                                counter++;
+                            } else if (klass === "ul") {
+                                txt = "\u2022 " + child.text;
+                            } else {
+                                txt = child.text;
+                            }
+
                             lbl = Ti.UI.createLabel({
-                                text : child.text
+                                text : txt
                             });
+
+                            //note that you need to to use .call($) to bind createStyle to your page
                             style = $.createStyle({
-                                classes : 'tableViewRow',
+                                classes : klass,
                                 apiName : 'Label'
                             });
                         }
@@ -371,14 +404,16 @@ exports.filter = function(html, whitelist, callback) {
     parser = new htmlparser.Parser(handler);
     //remove any break tags
     html = html.replace(/\<br\>|\<br \/\>|\<hr\>|\<hr \/\>/g, "");
+    // jshint ignore:line
     //remove whitespace and line breaks from markup
     html = require('htmlclean')(html);
+
     //filter the supplied HTML and fire the callback
     filter(html, whitelist, function(error, data) {
         if (error) {
             callback(error);
         } else {
-            //console.log(data);
+            //note that the handler function fires the success callback
             parser.parseComplete(data);
         }
     });
