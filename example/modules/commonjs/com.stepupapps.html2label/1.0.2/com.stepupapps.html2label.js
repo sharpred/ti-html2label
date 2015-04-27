@@ -14,7 +14,8 @@ exports.createHTML = function(html, whitelist, callback) {
         entities = require("entities"),
         css = require('css'),
     //needed to make $.createStyle available to this function (which must be invoked with .call)
-        $ = this;
+        $ = this,
+        objects = [];
 
     /*
      * Helper functions
@@ -177,7 +178,6 @@ exports.createHTML = function(html, whitelist, callback) {
     walker = function(dom) {
         var lbl,
             tree = [],
-            objects = [],
             tiObjects = [],
             template,
             labels = [];
