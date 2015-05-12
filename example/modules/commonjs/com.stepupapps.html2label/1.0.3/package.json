@@ -1,6 +1,6 @@
 {
   "name": "ti-html2label",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Convert HTML to Titanium objects",
   "main": "index.js",
   "scripts": {
@@ -22,8 +22,9 @@
     "tagsoup"
   ],
   "dependencies": {
-    "htmlparser2": "^3.8.0",
-    "entities": "^1.1.1"
+    "curry": "^1.2.0",
+    "entities": "^1.1.1",
+    "htmlparser2": "^3.8.0"
   },
   "devDependencies": {
     "css": "^2.2.0",

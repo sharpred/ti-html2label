@@ -6,29 +6,32 @@ exports.createHTML = function(html, whitelist, callback) {
         handler,
         htmlparser = require("htmlparser2"),
         entities = require("entities"),
+        curry = require("curry"),
         css = require('css'),
     //needed to make $.createStyle available to this function (which must be invoked with .call)
         $ = this;
 
-    filter = function(html, whitelist, callback) {
-        var Filter = require("filterhtml"),
-            filteredHTML,
+    filter = curry(function(whitelist, html, callback) {
+        var filterhtml = require("filterhtml"),
+            result,
             textFilter;
         try {
             textFilter = function(text, stack) {
-                //stack length greater than zero means it is in a whitelisted tag
+                //stack length greater than zero means text is in a whitelisted tag
                 if (stack.length > 0) {
                     return text;
                 }
                 //disgard tag and contents if not whitelisted. Returning null or undefined will bomb out filterhtml
                 return '';
             };
-            filteredHTML = Filter.filter_html(html, whitelist, ['http', 'https'], textFilter, ['script']);
-            callback(null, filteredHTML);
+            //filterhtml.filter_html ti-htmlcontract is (html text, white list json, allowed url schemas, text replacement function)
+            result = filterhtml.filter_html(html, whitelist, ['http', 'https'], textFilter);
+            callback(null, result);
         } catch(ex) {
             callback(ex);
         }
-    };
+    });
+    filterWithWhitelist = filter(whitelist);
     walker = function(dom) {
         var lbl,
             tree = [],
@@ -410,7 +413,7 @@ exports.createHTML = function(html, whitelist, callback) {
     html = require('htmlclean')(html);
 
     //filter the supplied HTML and fire the callback
-    filter(html, whitelist, function(error, data) {
+    filterWithWhitelist(html, function(error, data) {
         if (error) {
             callback(error);
         } else {
