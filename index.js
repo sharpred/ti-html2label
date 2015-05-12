@@ -85,7 +85,7 @@ exports.createHTML = function(html, whitelist, callback) {
                 obj.type = "label";
                 obj.class = item.name;
                 if (item.children && item.children.length > 0) {
-                    item.children.forEach(function(child) {
+                    item.children.map(function(child) {
                         if (child.type === "text" && child.data) {
                             txt = entities.decodeHTML(child.data);
                             obj.texts.push(txt);
@@ -99,16 +99,16 @@ exports.createHTML = function(html, whitelist, callback) {
                             //just push paragraph embedded images straight into objects array for assembly into a ti object
                             if (child.name === "img") {
                                 images = getImages(child);
-                                images.forEach(function(image) {
+                                images.map(function(image) {
                                     objects.push(image);
                                 });
                             } else {
                                 childLabels = getLabels(child);
-                                childLabels.forEach(function(lbl) {
-                                    lbl.texts.forEach(function(txt) {
+                                childLabels.map(function(lbl) {
+                                    lbl.texts.map(function(txt) {
                                         obj.texts.push(txt);
                                     });
-                                    lbl.links.forEach(function(link) {
+                                    lbl.links.map(function(link) {
                                         obj.links.push(link);
                                     });
                                 });
@@ -125,13 +125,13 @@ exports.createHTML = function(html, whitelist, callback) {
         getListViewItems = function(data) {
             var kids = [];
             try {
-                data.forEach(function(item) {
+                data.map(function(item) {
                     var obj = {};
                     obj.type = "listViewItem";
                     obj.attribs = item.attribs;
                     //should not be anything else, but just in case
                     if (item.type === "tag" && item.name === "li" && item.children) {
-                        item.children.forEach(function(child) {
+                        item.children.map(function(child) {
                             if (child.type === "text" && child.data) {
                                 obj.text = entities.decodeHTML(child.data);
                             }
@@ -149,14 +149,14 @@ exports.createHTML = function(html, whitelist, callback) {
         getTableRowItems = function(data) {
             var kids = [];
             try {
-                data.forEach(function(item) {
+                data.map(function(item) {
                     var obj = {};
                     obj.type = "tableViewRow";
                     obj.attribs = item.attribs;
                     //should not be anything else, but just in case
                     if (item.type === "tag" && item.children) {
                         var txt = '';
-                        item.children.forEach(function(child) {
+                        item.children.map(function(child) {
                             if (child.type === "text" && child.data) {
                                 obj.text = entities.decodeHTML(child.data);
                             } else if (child.type === "tag") {
@@ -165,7 +165,7 @@ exports.createHTML = function(html, whitelist, callback) {
                                     obj.type = "tableViewSection";
                                 }
                                 if (child.children) {
-                                    child.children.forEach(function(kid) {
+                                    child.children.map(function(kid) {
                                         if (kid.type === "text" && kid.data) {
                                             txt = txt + " " + kid.data;
                                         }
@@ -189,7 +189,7 @@ exports.createHTML = function(html, whitelist, callback) {
                 if (dom.slice) {
                     tree = dom.slice();
                 }
-                tree.forEach(function(item) {
+                tree.map(function(item) {
                     var obj = {},
                         images = [],
                         labels = [],
@@ -201,13 +201,13 @@ exports.createHTML = function(html, whitelist, callback) {
                         if (specialTags.indexOf(item.name) === -1) {
                             //reinitialise labels array as getLabels is recursive
                             labels = getLabels(item);
-                            labels.forEach(function(label) {
+                            labels.map(function(label) {
                                 label.text = label.texts.join("");
                                 objects.push(label);
                             });
                         } else if (item.name === "img") {
                             images = getImages(item);
-                            images.forEach(function(image) {
+                            images.map(function(image) {
                                 objects.push(image);
                             });
                         } else {
@@ -231,7 +231,7 @@ exports.createHTML = function(html, whitelist, callback) {
                 });
             }
             //create the titanium objects
-            objects.forEach(function(obj) {
+            objects.map(function(obj) {
                 var lbl,
                     klass,
                     style,
@@ -262,7 +262,7 @@ exports.createHTML = function(html, whitelist, callback) {
                     lbl.applyProperties(style);
                     tiObjects.push(lbl);
                     if (obj.links && obj.links.length > 0) {
-                        obj.links.forEach(function(link) {
+                        obj.links.map(function(link) {
                             var items = [],
                                 url;
                             items.push(link.href);
@@ -332,7 +332,7 @@ exports.createHTML = function(html, whitelist, callback) {
                     tv.applyProperties(style);
                     //use a counter for <ol> elements
                     var counter = 1;
-                    obj.children.forEach(function(child) {
+                    obj.children.map(function(child) {
                         var txt;
                         if (child.type === "tableViewSection" && child.text) {
                             lbl = Ti.UI.createLabel({
