@@ -4,6 +4,8 @@ convert html to titanium object
 ##Note
 This project is a work in progress, so use advisedly.  Raise an issue for any problems or suggestions you have.
 
+Note this project now uses attributed strings on ios and android, so must be built using Ti SDK 4.0.0 or above.
+
 ##Installation
 1. Open a terminal prompt
 2. Type `npm install`

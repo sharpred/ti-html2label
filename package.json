@@ -1,6 +1,6 @@
 {
   "name": "ti-html2label",
-  "version": "0.0.1",
+  "version": "1.0.3",
   "description": "Convert HTML to Titanium objects",
   "main": "index.js",
   "scripts": {
@@ -8,7 +8,8 @@
   },
   "titaniumManifest": {
     "guid": "1d0ddc91-0034-1c99-68ba-5a041ae42c44",
-    "moduleid": "com.stepupapps.html2label"
+    "moduleid": "com.stepupapps.html2label",
+    "tisdk": "4.0.0.GA"
   },
   "repository": {
     "type": "git",
@@ -21,8 +22,9 @@
     "tagsoup"
   ],
   "dependencies": {
-    "htmlparser2": "^3.8.0",
-    "entities": "^1.1.1"
+    "curry": "^1.2.0",
+    "entities": "^1.1.1",
+    "htmlparser2": "^3.8.0"
   },
   "devDependencies": {
     "css": "^2.2.0",
@@ -33,7 +35,8 @@
     "grunt-titaniumifier": "^1.0.0-beta",
     "grunt-zip": "^0.16.0",
     "htmlclean": "^2.6.2",
-    "ti-console": "^0.1.4"
+    "ti-console": "^0.1.4",
+    "tiapp.xml": "git://github.com/sharpred/tiapp.xml"
   },
   "author": "Paul Ryan",
   "license": "MIT",
