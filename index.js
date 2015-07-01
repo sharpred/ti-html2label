@@ -298,12 +298,12 @@ exports.createHTML = function(html, whitelist, callback) {
 
                 }
                 if ((obj.type === "tableView") || (obj.type === "listView")) {
-                   console.log("type "+obj.type);
+                    //console.log("type " + obj.type);
                     //use a counter for <ol> elements
                     var counter = 1;
                     obj.children.map(function(child) {
                         var txt;
-                        console.log("type "+child.text);
+                        //console.log("type " + child.text);
                         if (child.type === "tableViewSection" && child.text) {
                             lbl = Ti.UI.createLabel({
                                 text : child.text
