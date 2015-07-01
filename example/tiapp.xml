@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ti:app 
+<ti:app
   xmlns:ti="http://ti.appcelerator.org">
-  <id>com.stepupapps.html2native.example</id>
+  <id>com.stepupapps.html2label.example</id>
   <name>com.stepupapps.html2label.example</name>
   <version>1.0.3</version>
   <publisher>not specified</publisher>
@@ -39,10 +39,10 @@
       </dict>
     </plist>
   </ios>
-  <android 
+  <android
     xmlns:android="http://schemas.android.com/apk/res/android">
     <manifest android:versionName="1.0.3" android:versionCode="3" package="com.stepupapps.html2label.example">
-      <uses-sdk android:minSdkVersion="16" android:targetSdkVersion="22"/>
+      <uses-sdk android:minSdkVersion="16" android:targetSdkVersion="21"/>
       <application/>
     </manifest>
   </android>
