@@ -86,6 +86,7 @@ exports.createHTML = function(html, whitelist, callback) {
                 obj.class = item.name;
                 if (item.children && item.children.length > 0) {
                     item.children.map(function(child) {
+                        var attr;
                         if (child.type === "text" && child.data) {
                             txt = entities.decodeHTML(child.data);
                             obj.texts.push(txt);
@@ -203,6 +204,7 @@ exports.createHTML = function(html, whitelist, callback) {
                             labels = getLabels(item);
                             labels.map(function(label) {
                                 label.text = label.texts.join("");
+                                delete label.texts;
                                 objects.push(label);
                             });
                         } else if (item.name === "img") {
@@ -239,13 +241,45 @@ exports.createHTML = function(html, whitelist, callback) {
                     data = [],
                     tv,
                     tvs,
-                    tvr;
+                    tvr,
+                    attr,
+                    attributes = [];
                 obj = obj || {};
                 if (obj.type === "label" && obj.text) {
 
-                    lbl = Ti.UI.createLabel({
-                        text : obj.text
-                    });
+                    if (obj.links && obj.links.length > 0) {
+                        obj.links.map(function(link) {
+                            attributes.push({
+                                type : Titanium.UI.ATTRIBUTE_LINK,
+                                value : link.href,
+                                range : [obj.text.indexOf(link.title), (link.title).length]
+                            });
+                        });
+                        attr = Ti.UI.createAttributedString({
+                            text : obj.text,
+                            attributes : attributes
+                        });
+                        lbl = Ti.UI.createLabel({
+                            attributedString : attr
+                        });
+
+                        lbl.addEventListener('link', function(e) {
+
+                            if (Ti.Platform.osname !== "android") {
+                                Ti.Platform.openURL(e.url);
+                            } else {
+                                intent = Ti.Android.createIntent({
+                                    action : Ti.Android.ACTION_VIEW,
+                                    data : e.url
+                                });
+                                Ti.Android.currentActivity.startActivity(intent);
+                            }
+                        });
+                    } else {
+                        lbl = Ti.UI.createLabel({
+                            text : obj.text
+                        });
+                    }
 
                     if (obj.class) {
                         klass = obj.class;
@@ -261,63 +295,6 @@ exports.createHTML = function(html, whitelist, callback) {
 
                     lbl.applyProperties(style);
                     tiObjects.push(lbl);
-                    if (obj.links && obj.links.length > 0) {
-                        obj.links.map(function(link) {
-                            var items = [],
-                                url;
-                            items.push(link.href);
-                            //add a cancel button
-                            items.push("cancel");
-
-                            lbl = Ti.UI.createLabel({
-                                text : link.title
-                            });
-
-                            //note that you need to to use .call($) to bind createStyle to your page
-                            style = $.createStyle({
-                                classes : 'a',
-                                apiName : 'Label'
-                            });
-
-                            lbl.applyProperties(style);
-
-                            var opts = {
-                                title : 'Open Link?',
-                                cancel : 1,
-                                options : items
-                            };
-
-                            var dialog = Ti.UI.createOptionDialog(opts);
-
-                            dialog.addEventListener('click', function(e) {
-                                var intent,
-                                    url,
-                                    index;
-                                index = e.index;
-                                url = e.source.options[index];
-                                if (url !== "cancel") {
-                                    if (Ti.Platform.osname !== "android") {
-                                        Ti.Platform.openURL(url);
-                                    } else {
-                                        intent = Ti.Android.createIntent({
-                                            action : Ti.Android.ACTION_VIEW,
-                                            data : url
-                                        });
-                                        Ti.Android.currentActivity.startActivity(intent);
-                                    }
-                                } else {
-                                    dialog.hide();
-                                }
-                            });
-
-                            lbl.addEventListener('click', function(e) {
-                                dialog.show();
-                            });
-                            tiObjects.push(lbl);
-
-                        });
-
-                    }
 
                 }
                 if ((obj.type === "tableView") || (obj.type === "listView")) {

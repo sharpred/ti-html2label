@@ -9,7 +9,7 @@
   "titaniumManifest": {
     "guid": "1d0ddc91-0034-1c99-68ba-5a041ae42c44",
     "moduleid": "com.stepupapps.html2label",
-    "tisdk": "4.0.0.Beta2"
+    "tisdk": "4.0.0.GA"
   },
   "repository": {
     "type": "git",
