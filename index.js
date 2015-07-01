@@ -312,12 +312,11 @@ exports.createHTML = function(html, whitelist, callback) {
                                 classes : "tableViewHeader",
                                 apiName : 'Label'
                             });
-                        }
-                        if ((child.type === "tableViewRow") || (child.type === "listViewItem") && child.text) {
+                        } else if ((child.type === "tableViewRow") || (child.type === "listViewItem") && child.text) {
                             if (obj.class) {
                                 klass = obj.class;
                             } else {
-                                klass = "tableViewRow";
+                                klass = child.type;
                             }
                             if (klass === "ol") {
                                 txt = "" + counter + " " + child.text;
@@ -327,16 +326,18 @@ exports.createHTML = function(html, whitelist, callback) {
                             } else {
                                 txt = child.text;
                             }
-
                             lbl = Ti.UI.createLabel({
                                 text : txt
                             });
+                            //Ti.API.debug("tvr " + txt);
 
                             //note that you need to to use .call($) to bind createStyle to your page
                             style = $.createStyle({
                                 classes : klass,
                                 apiName : 'Label'
                             });
+                        } else {
+                            Ti.API.debug("no children");
                         }
                         lbl.applyProperties(style);
                         tiObjects.push(lbl);
