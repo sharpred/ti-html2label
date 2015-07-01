@@ -25,6 +25,13 @@ module.exports = function(grunt) {
                     command : 'build',
                     logLevel : 'debug',
                     projectDir : './example',
+                    platform : 'android'
+                }
+            },ios : {
+                options : {
+                    command : 'build',
+                    logLevel : 'debug',
+                    projectDir : './example',
                     platform : 'ios'
                 }
             },
@@ -52,9 +59,13 @@ module.exports = function(grunt) {
     grunt.loadTasks('tasks');
     grunt.registerTask('build', ['titaniumifier:module']);
 
-    grunt.registerTask('test', ['unzip:module', 'titanium:sdk','titanium:ios', 'clean:unzip']);
+    grunt.registerTask('testios', ['unzip:module', 'titanium:sdk','titanium:ios', 'clean:unzip']);
 
-    grunt.registerTask('ios', ['tiapp','clean', 'build', 'test']);
+    grunt.registerTask('testandroid', ['unzip:module', 'titanium:sdk','titanium:android', 'clean:unzip']);
+
+    grunt.registerTask('ios', ['tiapp','clean', 'build', 'testios']);
+
+    grunt.registerTask('android', ['tiapp','clean', 'build', 'testandroid']);
 
     grunt.registerTask('default', ['ios']);
 };
