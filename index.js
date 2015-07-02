@@ -115,7 +115,7 @@ exports.createHTML = function(html, whitelist, callback) {
                                 obj.links.push({
                                     text : item.attribs.title || txt,
                                     type : Ti.UI.ATTRIBUTE_UNDERLINES_STYLE,
-                                    value : TI.UI.ATTRIBUTE_UNDERLINE_STYLE_SINGLE
+                                    value : Ti.UI.ATTRIBUTE_UNDERLINE_STYLE_SINGLE
                                 });
                             }
                             if (item.name === 'strike' || item.name === 's' || item.name === 'del') {
@@ -140,6 +140,7 @@ exports.createHTML = function(html, whitelist, callback) {
                                     objects.push(image);
                                 });
                             } else {
+                                //recurse
                                 childLabels = getLabels(child);
                                 childLabels.map(function(lbl) {
                                     lbl.texts.map(function(txt) {
