@@ -201,6 +201,8 @@ exports.createHTML = function(html, whitelist, callback) {
                                 //if its a header we will make it a tableViewSection
                                 if (child.name === "th") {
                                     obj.type = "tableViewSection";
+                                } else {
+                                    obj.type = "tableViewRow";
                                 }
                                 if (child.children) {
                                     child.children.map(function(kid) {
@@ -287,7 +289,11 @@ exports.createHTML = function(html, whitelist, callback) {
                         walker(item.children, outerFont);
                     }
                     if (item.type === "tag") {
-                        if (specialTags.indexOf(item.name) === -1) {
+                        if (item.name === "hr") {
+                            obj.type = "hr";
+                            obj.class = "hr";
+                            objects.push(obj);
+                        } else if (specialTags.indexOf(item.name) === -1) {
                             //reinitialise labels array as getLabels is recursive
                             labels = getLabels(item);
                             labels.map(function(label) {
@@ -325,7 +331,8 @@ exports.createHTML = function(html, whitelist, callback) {
                 var lbl,
                     klass,
                     style,
-                    iv;
+                    iv,
+                    vw;
                 obj = obj || {};
                 if (obj.class) {
                     klass = obj.class;
@@ -346,12 +353,27 @@ exports.createHTML = function(html, whitelist, callback) {
                     }
 
                 }
+                if (obj.type === "hr") {
+                    style = $.createStyle({
+                        classes : "hr",
+                        apiName : 'View'
+                    });
+
+                    vw = Ti.UI.createView();
+                    vw.applyProperties(style);
+                    tiObjects.push(vw);
+
+                }
                 if ((obj.type === "tableView") || (obj.type === "listView")) {
                     //use a counter for <ol> elements
                     var counter = 1;
                     obj.children.map(function(child) {
                         var txt;
-                        //console.log("type " + child.text);
+                        if (child.class) {
+                            klass = child.class;
+                        } else {
+                            klass = child.type;
+                        }
                         if (child.type === "tableViewSection" && child.text) {
                             txt = child.text;
                             style = $.createStyle({
@@ -359,6 +381,10 @@ exports.createHTML = function(html, whitelist, callback) {
                                 apiName : 'Label'
                             });
                         } else if ((child.type === "tableViewRow") || (child.type === "listViewItem") && child.text) {
+                            style = $.createStyle({
+                                classes : klass,
+                                apiName : 'Label'
+                            });
                             if (klass === "ol") {
                                 txt = "" + counter + " " + child.text;
                                 counter++;
@@ -413,8 +439,6 @@ exports.createHTML = function(html, whitelist, callback) {
         }
     });
     parser = new htmlparser.Parser(handler);
-    //remove any break tags
-    html = html.replace(/\<br\>|\<br \/\>|\<hr\>|\<hr \/\>/g, "");
     // jshint ignore:line
     //remove whitespace and line breaks from markup
     html = require('htmlclean')(html);

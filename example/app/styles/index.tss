@@ -135,6 +135,15 @@
     top: 10
 }
 
+".hr": {
+    left: 10,
+    right: 10,
+    backgroundColor: 'black',
+    height: 1,
+    top: 10,
+    bottom: 5
+}
+
 ".tableView":{
     height: Titanium.UI.SIZE
 }
@@ -157,7 +166,7 @@
     },
     left: 15,
     right: 15,
-    top: 10,
+    top: 2,
     color: 'black'
 }
 
