@@ -4,7 +4,7 @@
 }
 ".label": {
     font: {
-        fontSize: 14
+        fontSize: 12
     },
     color: '#000',
     left: 10,
@@ -14,7 +14,7 @@
 
 ".p": {
     font: {
-        fontSize: 14
+        fontSize: 12
     },
     color: '#000',
     left: 10,
@@ -24,7 +24,7 @@
 
 ".a": {
     font: {
-        fontSize: 14
+        fontSize: 12
     },
     color: 'blue',
     left: 10,

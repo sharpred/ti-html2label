@@ -74,8 +74,7 @@ exports.createHTML = function(html, whitelist, callback) {
         getLabels = function(item) {
             var obj = {
                 links : [],
-                texts : [],
-                as : []
+                texts : []
             },
                 txt = "",
                 labels = [],
@@ -268,17 +267,6 @@ exports.createHTML = function(html, whitelist, callback) {
                         });
                     }
 
-                    if (obj.as && obj.as.length > 0) {
-                        useAS = true;
-                        obj.as.map(function(item) {
-                            attributes.push({
-                                type : item.type,
-                                value : item.value,
-                                range : [obj.text.indexOf(item.text), (item.text).length]
-                            });
-                        });
-                    }
-
                     if (useAS) {
                         console.log("as: " + JSON.stringify(attributes));
                         console.log("str: " + obj.text);
@@ -307,20 +295,21 @@ exports.createHTML = function(html, whitelist, callback) {
                             text : obj.text
                         });
 
-                        if (obj.class) {
-                            klass = obj.class;
-                        } else {
-                            klass = "label";
-                        }
-
-                        //note that you need to to use .call($) to bind createStyle to your page
-                        style = $.createStyle({
-                            classes : klass,
-                            apiName : 'Label'
-                        });
-
-                        lbl.applyProperties(style);
                     }
+
+                    if (obj.class) {
+                        klass = obj.class;
+                    } else {
+                        klass = "label";
+                    }
+
+                    //note that you need to to use .call($) to bind createStyle to your page
+                    style = $.createStyle({
+                        classes : klass,
+                        apiName : 'Label'
+                    });
+                    console.log("klass: "+klass);
+                    lbl.applyProperties(style);
                     tiObjects.push(lbl);
 
                 }
