@@ -36,10 +36,10 @@ exports.createHTML = function(html, whitelist, callback) {
             tiObjects = [],
             objects = [],
             createLabel,
-            getListViewItems,
             getTableRowItems,
             getLabels,
-            getImages;
+            getImages,
+            counter = 1;
 
         /*
          * Helper functions
@@ -86,6 +86,10 @@ exports.createHTML = function(html, whitelist, callback) {
                     if (outerFont.hasOwnProperty(key)) {
                         innerFont[key] = outerFont[key];
                     }
+                }
+                //record if it has come from a ul or ol
+                if (item && item.parent && item.parent.name && (['ul', 'ol'].indexOf(item.parent.name) !== -1)) {
+                    obj.parent = item.parent.name;
                 }
                 if (item.children && item.children.length > 0) {
                     item.children.map(function(child) {
@@ -160,30 +164,6 @@ exports.createHTML = function(html, whitelist, callback) {
                 return [obj];
             }
         };
-        getListViewItems = function(data) {
-            var kids = [];
-            try {
-                data.map(function(item) {
-                    var obj = {};
-                    obj.type = "listViewItem";
-                    obj.attribs = item.attribs;
-                    //should not be anything else, but just in case
-                    if (item.type === "tag" && item.name === "li" && item.children) {
-                        item.children.map(function(child) {
-                            if (child.type === "text" && child.data) {
-                                obj.text = entities.decodeHTML(child.data);
-                            }
-                        });
-                    }
-                    kids.push(obj);
-                });
-            } catch(ex) {
-                console.error(ex);
-            } finally {
-                return kids;
-            }
-
-        };
         getTableRowItems = function(data) {
             var kids = [];
             try {
@@ -227,23 +207,37 @@ exports.createHTML = function(html, whitelist, callback) {
             var lbl,
                 attr,
                 attributes = [],
-                useAS = false;
+                useAS = false,
+                text;
             try {
                 obj = obj || {};
+                text = obj.text;
+                //ul
+                if (obj.parent === "ul") {
+                    text = "\u2022 " + text;
+                }
+                //ol
+                if (obj.parent === "ol") {
+                    text = "" + counter + " " + text;
+                    counter++;
+                } else {
+                    //reset the counter if another tag is encountered
+                    counter = 1;
+                }
                 if (obj.links && obj.links.length > 0) {
                     useAS = true;
                     obj.links.map(function(link) {
                         attributes.push({
                             type : link.type,
                             value : link.value,
-                            range : [obj.text.indexOf(link.text), (link.text).length]
+                            range : [text.indexOf(link.text), (link.text).length]
                         });
                     });
                 }
 
                 if (useAS) {
                     attr = Ti.UI.createAttributedString({
-                        text : obj.text,
+                        text : text,
                         attributes : attributes
                     });
                     lbl = Ti.UI.createLabel({
@@ -264,7 +258,7 @@ exports.createHTML = function(html, whitelist, callback) {
                     });
                 } else {
                     lbl = Ti.UI.createLabel({
-                        text : obj.text
+                        text : text
                     });
 
                 }
@@ -311,17 +305,21 @@ exports.createHTML = function(html, whitelist, callback) {
                             obj.attribs = item.attribs;
                             if (item.children && item.children.length > 0) {
                                 if (item.name === 'ol' || item.name === 'ul') {
-                                    obj.type = "listView";
-                                    obj.class = item.name;
-                                    obj.children = getListViewItems(item.children);
-                                }
-                                if (item.name === 'table') {
+                                    item.children.map(function(child) {
+                                        labels = getLabels(child);
+                                        labels.map(function(label) {
+                                            label.text = label.texts.join("");
+                                            delete label.texts;
+                                            objects.push(label);
+                                        });
+                                    });
+                                } else if (item.name === 'table') {
                                     obj.type = "tableView";
                                     obj.class = "tableViewRow";
                                     obj.children = getTableRowItems(item.children);
+                                    objects.push(obj);
                                 }
                             }
-                            objects.push(obj);
                         }
                     }
                 });
@@ -364,35 +362,25 @@ exports.createHTML = function(html, whitelist, callback) {
                     tiObjects.push(vw);
 
                 }
-                if ((obj.type === "tableView") || (obj.type === "listView")) {
+                if ((obj.type === "tableView") ) {
                     //use a counter for <ol> elements
-                    var counter = 1;
                     obj.children.map(function(child) {
-                        var txt;
+                        var txt = child.text;
                         if (child.class) {
                             klass = child.class;
                         } else {
                             klass = child.type;
                         }
                         if (child.type === "tableViewSection" && child.text) {
-                            txt = child.text;
                             style = $.createStyle({
                                 classes : "tableViewHeader",
                                 apiName : 'Label'
                             });
-                        } else if ((child.type === "tableViewRow") || (child.type === "listViewItem") && child.text) {
+                        } else if ((child.type === "tableViewRow") && child.text) {
                             style = $.createStyle({
                                 classes : klass,
                                 apiName : 'Label'
                             });
-                            if (klass === "ol") {
-                                txt = "" + counter + " " + child.text;
-                                counter++;
-                            } else if (klass === "ul") {
-                                txt = "\u2022 " + child.text;
-                            } else {
-                                txt = child.text;
-                            }
                         }
                         child.text = txt;
                         lbl = createLabel(child, style);

@@ -190,6 +190,16 @@
     color: 'black'
 }
 
+".li":{
+    font: {
+        fontSize: 12
+    },
+    left: 15,
+    right: 15,
+    top: 10,
+    color: 'black'
+}
+
 ".ol":{
     font: {
         fontSize: 12
