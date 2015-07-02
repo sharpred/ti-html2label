@@ -1,13 +1,12 @@
 exports.createHTML = function(html, whitelist, callback) {
-    var view,
-        filter,
+    var filter,
+        filterWithWhitelist,
         parser,
         walker,
         handler,
         htmlparser = require("htmlparser2"),
         entities = require("entities"),
         curry = require("curry"),
-        css = require('css'),
     //needed to make $.createStyle available to this function (which must be invoked with .call)
         $ = this;
 
@@ -33,12 +32,10 @@ exports.createHTML = function(html, whitelist, callback) {
     });
     filterWithWhitelist = filter(whitelist);
     walker = function(dom, outerFont) {
-        var lbl,
-            tree = [],
+        var tree = [],
             tiObjects = [],
-            template,
-            labels = [],
             objects = [],
+            createLabel,
             getListViewItems,
             getTableRowItems,
             getLabels,
@@ -77,11 +74,10 @@ exports.createHTML = function(html, whitelist, callback) {
                 texts : []
             },
                 txt = "",
-                labels = [],
                 childLabels = [],
                 images = [],
-                innerFont = {},
-                key;
+                key,
+            innerFont = {};
             try {
                 obj.type = "label";
                 obj.class = item.name;
@@ -93,7 +89,6 @@ exports.createHTML = function(html, whitelist, callback) {
                 }
                 if (item.children && item.children.length > 0) {
                     item.children.map(function(child) {
-                        var attr;
                         if (child.type === "text" && child.data) {
                             txt = entities.decodeHTML(child.data);
                             obj.texts.push(txt);
@@ -225,7 +220,58 @@ exports.createHTML = function(html, whitelist, callback) {
                 return kids;
             }
         };
+        createLabel = function(obj, style) {
+            var lbl,
+                attr,
+                attributes = [],
+                useAS = false;
+            try {
+                obj = obj || {};
+                if (obj.links && obj.links.length > 0) {
+                    useAS = true;
+                    obj.links.map(function(link) {
+                        attributes.push({
+                            type : link.type,
+                            value : link.value,
+                            range : [obj.text.indexOf(link.text), (link.text).length]
+                        });
+                    });
+                }
 
+                if (useAS) {
+                    attr = Ti.UI.createAttributedString({
+                        text : obj.text,
+                        attributes : attributes
+                    });
+                    lbl = Ti.UI.createLabel({
+                        attributedString : attr
+                    });
+
+                    lbl.addEventListener('link', function(e) {
+                        var intent;
+                        if (Ti.Platform.osname !== "android") {
+                            Ti.Platform.openURL(e.url);
+                        } else {
+                            intent = Ti.Android.createIntent({
+                                action : Ti.Android.ACTION_VIEW,
+                                data : e.url
+                            });
+                            Ti.Android.currentActivity.startActivity(intent);
+                        }
+                    });
+                } else {
+                    lbl = Ti.UI.createLabel({
+                        text : obj.text
+                    });
+
+                }
+                lbl.applyProperties(style);
+            } catch(ex) {
+                console.error(ex);
+            } finally {
+                return lbl;
+            }
+        };
         try {
             if (dom) {
                 if (dom.slice) {
@@ -237,7 +283,7 @@ exports.createHTML = function(html, whitelist, callback) {
                         labels = [],
                         specialTags = ['img', 'table', 'td', 'th', 'tr', 'ol', 'ul', 'li'];
                     if (item.children) {
-                        walker(item.children);
+                        walker(item.children, outerFont);
                     }
                     if (item.type === "tag") {
                         if (specialTags.indexOf(item.name) === -1) {
@@ -278,69 +324,26 @@ exports.createHTML = function(html, whitelist, callback) {
                 var lbl,
                     klass,
                     style,
-                    iv,
-                    data = [],
-                    tv,
-                    tvs,
-                    tvr,
-                    attr,
-                    attributes = [],
-                    useAS = false;
+                    iv;
                 obj = obj || {};
                 if (obj.type === "label" && obj.text) {
-
-                    if (obj.links && obj.links.length > 0) {
-                        useAS = true;
-                        obj.links.map(function(link) {
-                            attributes.push({
-                                type : link.type,
-                                value : link.value,
-                                range : [obj.text.indexOf(link.text), (link.text).length]
-                            });
-                        });
-                    }
-
-                    if (useAS) {
-                        attr = Ti.UI.createAttributedString({
-                            text : obj.text,
-                            attributes : attributes
-                        });
-                        lbl = Ti.UI.createLabel({
-                            attributedString : attr
-                        });
-
-                        lbl.addEventListener('link', function(e) {
-
-                            if (Ti.Platform.osname !== "android") {
-                                Ti.Platform.openURL(e.url);
-                            } else {
-                                intent = Ti.Android.createIntent({
-                                    action : Ti.Android.ACTION_VIEW,
-                                    data : e.url
-                                });
-                                Ti.Android.currentActivity.startActivity(intent);
-                            }
-                        });
-                    } else {
-                        lbl = Ti.UI.createLabel({
-                            text : obj.text
-                        });
-
-                    }
+                    obj.apiName = 'Label';
 
                     if (obj.class) {
                         klass = obj.class;
                     } else {
-                        klass = "label";
+                        klass = obj.type;
                     }
-
                     //note that you need to to use .call($) to bind createStyle to your page
                     style = $.createStyle({
                         classes : klass,
                         apiName : 'Label'
                     });
-                    lbl.applyProperties(style);
-                    tiObjects.push(lbl);
+
+                    lbl = createLabel(obj, style);
+                    if (lbl) {
+                        tiObjects.push(lbl);
+                    }
 
                 }
                 if ((obj.type === "tableView") || (obj.type === "listView")) {
