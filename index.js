@@ -91,13 +91,6 @@ exports.createHTML = function(html, whitelist, callback) {
                         innerFont[key] = outerFont[key];
                     }
                 }
-                //override with inline font stuff
-                if (item.attribs.face) {
-                    innerFont.fontFamily = item.attribs.face;
-                }
-                if (item.attribs.size) {
-                    innerFont.fontSize = item.attribs.size;
-                }
                 if (item.children && item.children.length > 0) {
                     item.children.map(function(child) {
                         var attr;
@@ -121,6 +114,20 @@ exports.createHTML = function(html, whitelist, callback) {
                                     text : item.attribs.title || txt,
                                     type : Ti.UI.ATTRIBUTE_FONT,
                                     value : innerFont
+                                });
+                            }
+                            if (item.name === 'u') {
+                                obj.links.push({
+                                    text : item.attribs.title || txt,
+                                    type : Ti.UI.iOS.ATTRIBUTE_UNDERLINES_STYLE,
+                                    value : Ti.UI.iOS.ATTRIBUTE_UNDERLINE_STYLE_SINGLE
+                                });
+                            }
+                            if (item.name === 'strike' || item.name === 's' || item.name === 'del') {
+                                obj.links.push({
+                                    text : item.attribs.title || txt,
+                                    type : Ti.UI.iOS.ATTRIBUTE_STRIKETHROUGH_STYLE,
+                                    value : Ti.UI.iOS.ATTRIBUTE_UNDERLINE_STYLE_SINGLE
                                 });
                             }
                             if (item.name === 'a' && item.attribs.href) {

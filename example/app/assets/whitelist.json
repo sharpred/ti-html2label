@@ -29,12 +29,17 @@
     "style": {},
     "i": {},
     "b": {},
+    "strike": {},
+    "s": {},
+    "del": {},
     "*": {
         "style": {
             "color": "color",
             "background-color": "color",
             "font-size": "measurement",
-            "font-family": "alphanumeric"
+            "font-family": "alphanumeric",
+            "font-style": "alphanumeric",
+            "font-weight": "alphanumeric"
         }
     }
 }

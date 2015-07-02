@@ -51,6 +51,34 @@
     top: 10
 }
 
+".strike": {
+    font: {
+        fontSize: 12
+    },
+    color: '#000',
+    left: 10,
+    right: 10,
+    top: 10
+}
+".s": {
+    font: {
+        fontSize: 12
+    },
+    color: '#000',
+    left: 10,
+    right: 10,
+    top: 10
+}
+".del": {
+    font: {
+        fontSize: 12
+    },
+    color: '#000',
+    left: 10,
+    right: 10,
+    top: 10
+}
+
 ".em": {
     font: {
         fontSize: 12

@@ -4,13 +4,15 @@ convert html to titanium object
 ##Note
 This project is a work in progress, so use advisedly.  Raise an issue for any problems or suggestions you have.
 
-Note this project now uses attributed strings on ios and android, so must be built using Ti SDK 4.0.0 or above.
+Note this project now uses attributed strings on iOS and Android, so must be built using Ti SDK 4.0.0 or above.
+
+This project was inspired by Fokke Zandberg's [HTML 2 AttributedString converter for Titanium](https://github.com/FokkeZB/ti-html2as) and uses some code/ideas from that project.
 
 ##Installation
 1. Open a terminal prompt
 2. Type `npm install`
 3. Then type `grunt`
-This will build the module and run the example project
+This will build the module and run the example project in the iOS simulator. Run `grunt android` to run on a connected Android device or emulator.
 
 ##How it works
 ###Components
