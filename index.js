@@ -77,7 +77,7 @@ exports.createHTML = function(html, whitelist, callback) {
                 childLabels = [],
                 images = [],
                 key,
-            innerFont = {};
+                innerFont = {};
             try {
                 obj.type = "label";
                 obj.class = item.name;
@@ -114,15 +114,15 @@ exports.createHTML = function(html, whitelist, callback) {
                             if (item.name === 'u') {
                                 obj.links.push({
                                     text : item.attribs.title || txt,
-                                    type : Ti.UI.iOS.ATTRIBUTE_UNDERLINES_STYLE,
-                                    value : Ti.UI.iOS.ATTRIBUTE_UNDERLINE_STYLE_SINGLE
+                                    type : Ti.UI.ATTRIBUTE_UNDERLINES_STYLE,
+                                    value : TI.UI.ATTRIBUTE_UNDERLINE_STYLE_SINGLE
                                 });
                             }
                             if (item.name === 'strike' || item.name === 's' || item.name === 'del') {
                                 obj.links.push({
                                     text : item.attribs.title || txt,
-                                    type : Ti.UI.iOS.ATTRIBUTE_STRIKETHROUGH_STYLE,
-                                    value : Ti.UI.iOS.ATTRIBUTE_UNDERLINE_STYLE_SINGLE
+                                    type : Ti.UI.ATTRIBUTE_STRIKETHROUGH_STYLE,
+                                    value : Ti.UI.ATTRIBUTE_UNDERLINE_STYLE_SINGLE
                                 });
                             }
                             if (item.name === 'a' && item.attribs.href) {
@@ -326,19 +326,18 @@ exports.createHTML = function(html, whitelist, callback) {
                     style,
                     iv;
                 obj = obj || {};
+                if (obj.class) {
+                    klass = obj.class;
+                } else {
+                    klass = obj.type;
+                }
+                //note that you need to to use .call($) to bind createStyle to your page
+                style = $.createStyle({
+                    classes : klass,
+                    apiName : 'Label'
+                });
                 if (obj.type === "label" && obj.text) {
                     obj.apiName = 'Label';
-
-                    if (obj.class) {
-                        klass = obj.class;
-                    } else {
-                        klass = obj.type;
-                    }
-                    //note that you need to to use .call($) to bind createStyle to your page
-                    style = $.createStyle({
-                        classes : klass,
-                        apiName : 'Label'
-                    });
 
                     lbl = createLabel(obj, style);
                     if (lbl) {
@@ -359,11 +358,6 @@ exports.createHTML = function(html, whitelist, callback) {
                                 apiName : 'Label'
                             });
                         } else if ((child.type === "tableViewRow") || (child.type === "listViewItem") && child.text) {
-                            if (obj.class) {
-                                klass = obj.class;
-                            } else {
-                                klass = child.type;
-                            }
                             if (klass === "ol") {
                                 txt = "" + counter + " " + child.text;
                                 counter++;
@@ -372,20 +366,12 @@ exports.createHTML = function(html, whitelist, callback) {
                             } else {
                                 txt = child.text;
                             }
-
-                            //note that you need to to use .call($) to bind createStyle to your page
-                            style = $.createStyle({
-                                classes : klass,
-                                apiName : 'Label'
-                            });
-                        } else {
-                            Ti.API.debug("no children");
                         }
-                        lbl = Ti.UI.createLabel({
-                            text : txt
-                        });
-                        lbl.applyProperties(style);
-                        tiObjects.push(lbl);
+                        child.text = txt;
+                        lbl = createLabel(child, style);
+                        if (lbl) {
+                            tiObjects.push(lbl);
+                        }
                     });
                 }
 
