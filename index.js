@@ -72,16 +72,16 @@ exports.createHTML = function(html, whitelist, callback) {
             }
         };
         getLabels = function(item) {
-            var obj = {},
+            var obj = {
+                links : [],
+                texts : [],
+                as : []
+            },
                 txt = "",
                 labels = [],
                 childLabels = [],
                 images = [];
             try {
-                obj = {
-                    links : [],
-                    texts : []
-                };
                 obj.type = "label";
                 obj.class = item.name;
                 if (item.children && item.children.length > 0) {
@@ -90,10 +90,19 @@ exports.createHTML = function(html, whitelist, callback) {
                         if (child.type === "text" && child.data) {
                             txt = entities.decodeHTML(child.data);
                             obj.texts.push(txt);
+                            //add attributed strings
+                            if (item.name === 'em' || item.name === 'i') {
+                                obj.links.push({
+                                    text : item.attribs.title || txt,
+                                    type : Ti.UI.ATTRIBUTE_OBLIQUENESS,
+                                    value : 0.25
+                                });
+                            }
                             if (item.name === 'a' && item.attribs.href) {
                                 obj.links.push({
-                                    href : item.attribs.href,
-                                    title : item.attribs.title || txt
+                                    value : item.attribs.href,
+                                    text : item.attribs.title || txt,
+                                    type : Titanium.UI.ATTRIBUTE_LINK
                                 });
                             }
                         } else if (child.type === "tag") {
@@ -243,18 +252,36 @@ exports.createHTML = function(html, whitelist, callback) {
                     tvs,
                     tvr,
                     attr,
-                    attributes = [];
+                    attributes = [],
+                    useAS = false;
                 obj = obj || {};
                 if (obj.type === "label" && obj.text) {
 
                     if (obj.links && obj.links.length > 0) {
+                        useAS = true;
                         obj.links.map(function(link) {
                             attributes.push({
-                                type : Titanium.UI.ATTRIBUTE_LINK,
-                                value : link.href,
-                                range : [obj.text.indexOf(link.title), (link.title).length]
+                                type : link.type,
+                                value : link.value,
+                                range : [obj.text.indexOf(link.text), (link.text).length]
                             });
                         });
+                    }
+
+                    if (obj.as && obj.as.length > 0) {
+                        useAS = true;
+                        obj.as.map(function(item) {
+                            attributes.push({
+                                type : item.type,
+                                value : item.value,
+                                range : [obj.text.indexOf(item.text), (item.text).length]
+                            });
+                        });
+                    }
+
+                    if (useAS) {
+                        console.log("as: " + JSON.stringify(attributes));
+                        console.log("str: " + obj.text);
                         attr = Ti.UI.createAttributedString({
                             text : obj.text,
                             attributes : attributes
@@ -279,26 +306,25 @@ exports.createHTML = function(html, whitelist, callback) {
                         lbl = Ti.UI.createLabel({
                             text : obj.text
                         });
+
+                        if (obj.class) {
+                            klass = obj.class;
+                        } else {
+                            klass = "label";
+                        }
+
+                        //note that you need to to use .call($) to bind createStyle to your page
+                        style = $.createStyle({
+                            classes : klass,
+                            apiName : 'Label'
+                        });
+
+                        lbl.applyProperties(style);
                     }
-
-                    if (obj.class) {
-                        klass = obj.class;
-                    } else {
-                        klass = "label";
-                    }
-
-                    //note that you need to to use .call($) to bind createStyle to your page
-                    style = $.createStyle({
-                        classes : klass,
-                        apiName : 'Label'
-                    });
-
-                    lbl.applyProperties(style);
                     tiObjects.push(lbl);
 
                 }
                 if ((obj.type === "tableView") || (obj.type === "listView")) {
-                    //console.log("type " + obj.type);
                     //use a counter for <ol> elements
                     var counter = 1;
                     obj.children.map(function(child) {
