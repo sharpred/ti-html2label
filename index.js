@@ -301,8 +301,6 @@ exports.createHTML = function(html, whitelist, callback) {
                     }
 
                     if (useAS) {
-                        console.log("as: " + JSON.stringify(attributes));
-                        console.log("str: " + obj.text);
                         attr = Ti.UI.createAttributedString({
                             text : obj.text,
                             attributes : attributes
@@ -341,7 +339,6 @@ exports.createHTML = function(html, whitelist, callback) {
                         classes : klass,
                         apiName : 'Label'
                     });
-                    console.log("klass: " + klass);
                     lbl.applyProperties(style);
                     tiObjects.push(lbl);
 
@@ -353,9 +350,7 @@ exports.createHTML = function(html, whitelist, callback) {
                         var txt;
                         //console.log("type " + child.text);
                         if (child.type === "tableViewSection" && child.text) {
-                            lbl = Ti.UI.createLabel({
-                                text : child.text
-                            });
+                            txt = child.text;
                             style = $.createStyle({
                                 classes : "tableViewHeader",
                                 apiName : 'Label'
@@ -374,10 +369,6 @@ exports.createHTML = function(html, whitelist, callback) {
                             } else {
                                 txt = child.text;
                             }
-                            lbl = Ti.UI.createLabel({
-                                text : txt
-                            });
-                            //Ti.API.debug("tvr " + txt);
 
                             //note that you need to to use .call($) to bind createStyle to your page
                             style = $.createStyle({
@@ -387,6 +378,9 @@ exports.createHTML = function(html, whitelist, callback) {
                         } else {
                             Ti.API.debug("no children");
                         }
+                        lbl = Ti.UI.createLabel({
+                            text : txt
+                        });
                         lbl.applyProperties(style);
                         tiObjects.push(lbl);
                     });
