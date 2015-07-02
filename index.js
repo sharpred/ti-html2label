@@ -32,7 +32,7 @@ exports.createHTML = function(html, whitelist, callback) {
         }
     });
     filterWithWhitelist = filter(whitelist);
-    walker = function(dom) {
+    walker = function(dom, outerFont) {
         var lbl,
             tree = [],
             tiObjects = [],
@@ -79,10 +79,25 @@ exports.createHTML = function(html, whitelist, callback) {
                 txt = "",
                 labels = [],
                 childLabels = [],
-                images = [];
+                images = [],
+                innerFont = {},
+                key;
             try {
                 obj.type = "label";
                 obj.class = item.name;
+                //shallow clone of outerFont
+                for (key in outerFont) {
+                    if (outerFont.hasOwnProperty(key)) {
+                        innerFont[key] = outerFont[key];
+                    }
+                }
+                //override with inline font stuff
+                if (item.attribs.face) {
+                    innerFont.fontFamily = item.attribs.face;
+                }
+                if (item.attribs.size) {
+                    innerFont.fontSize = item.attribs.size;
+                }
                 if (item.children && item.children.length > 0) {
                     item.children.map(function(child) {
                         var attr;
@@ -91,10 +106,21 @@ exports.createHTML = function(html, whitelist, callback) {
                             obj.texts.push(txt);
                             //add attributed strings
                             if (item.name === 'em' || item.name === 'i') {
+                                innerFont.fontStyle = 'italic';
+                                innerFont.fontWeight = 'normal';
                                 obj.links.push({
                                     text : item.attribs.title || txt,
-                                    type : Ti.UI.ATTRIBUTE_OBLIQUENESS,
-                                    value : 0.25
+                                    type : Ti.UI.ATTRIBUTE_FONT,
+                                    value : innerFont
+                                });
+                            }
+                            if (item.name === 'strong' || item.name === 'b') {
+                                innerFont.fontStyle = 'normal';
+                                innerFont.fontWeight = 'bold';
+                                obj.links.push({
+                                    text : item.attribs.title || txt,
+                                    type : Ti.UI.ATTRIBUTE_FONT,
+                                    value : innerFont
                                 });
                             }
                             if (item.name === 'a' && item.attribs.href) {
@@ -308,7 +334,7 @@ exports.createHTML = function(html, whitelist, callback) {
                         classes : klass,
                         apiName : 'Label'
                     });
-                    console.log("klass: "+klass);
+                    console.log("klass: " + klass);
                     lbl.applyProperties(style);
                     tiObjects.push(lbl);
 
@@ -381,11 +407,15 @@ exports.createHTML = function(html, whitelist, callback) {
         }
     };
     handler = new htmlparser.DomHandler(function(error, dom) {
+        //we pass some default font attributes for use by AS styling
+        var font = {
+            fontSize : 12
+        };
         try {
             if (error) {
                 callback(error);
             } else {
-                callback(null, walker(dom));
+                callback(null, walker(dom, font));
             }
         } catch(ex) {
             callback(ex);
