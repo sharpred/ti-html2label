@@ -92,6 +92,8 @@ exports.createHTML = function(html, whitelist, callback) {
                     obj.parent = item.parent.name;
                 }
                 if (item.children && item.children.length > 0) {
+
+                    //TODO refactor as cyclomatic complexity is too high (use a platform switch style function)
                     item.children.map(function(child) {
                         if (child.type === "text" && child.data) {
                             txt = entities.decodeHTML(child.data);
