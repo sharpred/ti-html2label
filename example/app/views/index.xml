@@ -1,5 +1,0 @@
-<Alloy>
-	<Window class="container">
-	    <ScrollView class="scrollView" id="scrollView"/>
-	</Window>
-</Alloy>
