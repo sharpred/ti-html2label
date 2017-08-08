@@ -1,0 +1,222 @@
+".container": {
+    backgroundColor: "white",
+    height: Ti.UI.FILL
+}
+".label": {
+    font: {
+        fontSize: 12
+    },
+    color: '#000',
+    left: 10,
+    right: 10,
+    top: 10
+}
+
+".p": {
+    font: {
+        fontSize: 12
+    },
+    color: '#000',
+    left: 10,
+    right: 10,
+    top: 10
+}
+
+".a": {
+    font: {
+        fontSize: 12
+    },
+    color: 'blue',
+    left: 10,
+    bottom: 10
+}
+
+".u": {
+    font: {
+        fontSize: 12
+    },
+    color: '#000',
+    left: 10,
+    right: 10,
+    top: 10
+}
+
+".strong": {
+    font: {
+        fontSize: 12
+    },
+    color: '#000',
+    left: 10,
+    right: 10,
+    top: 10
+}
+
+".strike": {
+    font: {
+        fontSize: 12
+    },
+    color: '#000',
+    left: 10,
+    right: 10,
+    top: 10
+}
+".s": {
+    font: {
+        fontSize: 12
+    },
+    color: '#000',
+    left: 10,
+    right: 10,
+    top: 10
+}
+".del": {
+    font: {
+        fontSize: 12
+    },
+    color: '#000',
+    left: 10,
+    right: 10,
+    top: 10
+}
+
+".em": {
+    font: {
+        fontSize: 12
+    },
+    color: '#000',
+    left: 10,
+    right: 10,
+    top: 10
+}
+
+
+".h1": {
+    font: {
+        fontSize: 24
+    },
+    color: 'black',
+    left: 10,
+    top: 10
+}
+
+".h2": {
+    font: {
+        fontSize: 22
+    },
+    color: 'black',
+    left: 10,
+    top: 10
+}
+
+".h3": {
+    font: {
+        fontSize: 20
+    },
+    color: 'black',
+    left: 10,
+    top: 10
+}
+
+".h4": {
+    font: {
+        fontSize: 18
+    },
+    color: 'black',
+    left: 10,
+    top: 10
+}
+
+".h5": {
+    font: {
+        fontSize: 16
+    },
+    color: 'black',
+    left: 10,
+    top: 10
+}
+
+".hr": {
+    left: 10,
+    right: 10,
+    backgroundColor: 'black',
+    height: 1,
+    top: 10,
+    bottom: 5
+}
+
+".tableView":{
+    height: Titanium.UI.SIZE
+}
+
+".tableViewHeader":{
+    font: {
+        fontSize: 18
+    },
+    left: 15,
+    right: 15,
+    top: 20,
+    height: 25,
+    color: "white",
+    backgroundColor: '#c5c5c7'
+}
+
+".tableViewRow":{
+    font: {
+        fontSize: 12
+    },
+    left: 15,
+    right: 15,
+    top: 2,
+    color: 'black'
+}
+
+".listViewItem":{
+    font: {
+        fontSize: 12
+    },
+    left: 15,
+    right: 15,
+    top: 10,
+    color: 'black'
+}
+
+".ul":{
+    font: {
+        fontSize: 12
+    },
+    left: 15,
+    right: 15,
+    top: 10,
+    color: 'black'
+}
+
+".li":{
+    font: {
+        fontSize: 12
+    },
+    left: 15,
+    right: 15,
+    top: 10,
+    color: 'black'
+}
+
+".ol":{
+    font: {
+        fontSize: 12
+    },
+    left: 15,
+    right: 15,
+    top: 10,
+    color: 'black'
+}
+
+".imageView":{
+    top: 20,
+    touchEnabled: false
+}
+
+".scrollView": {
+    top: 20,
+    layout: "vertical",
+    scrollType: "vertical"
+}

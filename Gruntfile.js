@@ -78,9 +78,9 @@ module.exports = function (grunt) {
 
     grunt.registerTask('testandroid', ['unzip:module', 'appc-cli:sdk', 'appc-cli:android', 'clean:unzip']);
 
-    grunt.registerTask('ios', ['appc-cli:new', 'tiapp', 'clean', 'build', 'testios']);
+    grunt.registerTask('ios', ['appc-cli:new', 'tiapp', 'copyexamplefiles','clean', 'build', 'testios']);
 
-    grunt.registerTask('android', ['appc-cli:new', 'tiapp', 'clean', 'build', 'testandroid']);
+    grunt.registerTask('android', ['appc-cli:new', 'tiapp', 'copyexamplefiles','clean', 'build', 'testandroid']);
 
     grunt.registerTask('default', ['ios']);
 
