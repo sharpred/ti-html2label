@@ -11,11 +11,15 @@ module.exports = function (grunt) {
         }, {
             srcpath: srcFolder + "index.xml",
             destpath: destFolder + "app/views/index.xml"
+        }, {
+            srcpath: srcFolder + "sample.html",
+            destpath: destFolder + "app/assets/sample.html"
+        }, {
+            srcpath: srcFolder + "whitelist.json",
+            destpath: destFolder + "app/assets/whitelist.json"
         }];
 
         toCopy.forEach(function (file) {
-            grunt.log.ok(file.srcpath);
-            grunt.log.ok(file.destpath);
             grunt.file.copy(file.srcpath, file.destpath);
         });
 
