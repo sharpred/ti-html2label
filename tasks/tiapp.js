@@ -11,8 +11,8 @@ module.exports = function(grunt) {
         tiapp.version = packageData.version;
         tiapp.android.versionName = packageData.version;
         tiapp.android.versionCode = parseInt(versions[2], 10);
-        tiapp.android.minSdkVersion = "16";
-        tiapp.android.targetSdkVersion = "22";
+        tiapp.android.minSdkVersion = "23";
+        tiapp.android.targetSdkVersion = "23";
         tiapp.android["package"] = "com.stepupapps.html2label.example";
         tiapp.name = "com.stepupapps.html2label.example";
         grunt.config.set('app_version', packageData.version);
