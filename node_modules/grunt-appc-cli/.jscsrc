@@ -1,0 +1,11 @@
+{
+    "preset": "crockford",
+    "maxErrors": 500,
+    "requireSpaceAfterKeywords": false,
+    "requireSpacesInAnonymousFunctionExpression": false,
+    "requireSpaceBetweenArguments": false,
+    "requireSpaceBeforeBlockStatements": false,
+    "disallowSpacesInsideParentheses": false,
+    "requireMatchingFunctionName": { "includeModuleExports": true },
+    "excludeFiles": ["app/lib/thirdparty/**", "app/widgets/danielhanold.pickerWidget/**", "app/lib/alloy/sync/sqlrest.js"]
+}
